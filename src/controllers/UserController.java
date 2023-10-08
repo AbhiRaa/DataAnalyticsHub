@@ -82,7 +82,7 @@ public class UserController {
         return false;
     }
 
-    public int getNextUserId() {
+    public int getNextUserId() throws SQLException {
         return userDAO.getLastUserId() + 1;
     }
 
