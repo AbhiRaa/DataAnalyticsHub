@@ -2,6 +2,7 @@ package views;
 
 import controllers.PostController;
 import controllers.UserController;
+import database.DBManager;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -23,11 +24,12 @@ public class LoginView {
     private TextField usernameField;
     private PasswordField passwordField;
     private Button loginButton, signupButton;
-    private PostController postController;
+    //private PostController postController;
     private UserController userController;
 
     public LoginView(Stage stage, UserController userController) {
         this.userController = userController;
+//        this.postController = postController;
         this.stage = stage;
         initializeComponents();
     }
@@ -86,7 +88,7 @@ public class LoginView {
         User user = userController.loginUser(username, password);
         if (user != null) {
             // Successful login, switch to DashboardView
-            new DashboardView(user, postController, userController);
+            new DashboardView(user, new PostController(new DBManager()), userController);
             stage.close();
         } else {
             // Show error message

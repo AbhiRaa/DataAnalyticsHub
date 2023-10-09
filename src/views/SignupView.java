@@ -19,9 +19,11 @@ public class SignupView {
     private PasswordField passwordField, confirmPasswordField;
     private Button signupButton, backButton;
     private UserController userController;
+    //private PostController postController;
 
     public SignupView(UserController userController) {
         this.userController = userController;
+//        this.postController = postController;
         this.stage = new Stage();
         initializeComponents();
     }
@@ -47,7 +49,7 @@ public class SignupView {
         VBox layout = new VBox(10, usernameField, nameBox, passwordField, confirmPasswordField, signupButton, backButton);
         layout.setPadding(new Insets(20));
 
-        stage.setScene(new Scene(layout, 400, 300));
+        stage.setScene(new Scene(layout, 500, 400));
         stage.setTitle("Signup");
         stage.show();
     }

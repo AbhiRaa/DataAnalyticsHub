@@ -2,6 +2,7 @@ package models;
 
 public class User {
 
+
 	private int userId;
 	private String username;
     private String hashedPassword;  // We store the hashed password, not the original.
@@ -20,11 +21,27 @@ public class User {
         this.isVIP = isVIP;
     }
     
+    public User(String username, String hashedPassword, String salt, String firstName, String lastName, boolean isVIP) {
+    	this.username = username;
+        this.salt = salt;
+        this.hashedPassword = hashedPassword;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.isVIP = isVIP;
+    }
+    
     /**
 	 * @return the userId
 	 */
 	public int getUserId() {
 		return userId;
+	}
+	
+	/**
+	 * @param userId the userId to set
+	 */
+	public void setUserId(int userId) {
+		this.userId = userId;
 	}
     
     /**

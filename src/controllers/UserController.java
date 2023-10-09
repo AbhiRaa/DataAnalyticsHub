@@ -22,7 +22,7 @@ public class UserController {
             if (!userDAO.doesUsernameExist(username)) {
                 
                 // Get the next available userId
-                int userId = getNextUserId();
+                //int userId = getNextUserId();
                 
                 // Generate salt for the password
                 String salt = PasswordUtils.generateSalt();
@@ -31,7 +31,7 @@ public class UserController {
                 String hashedPassword = PasswordUtils.hashPassword(password, salt);
                 
                 // Create a new user object
-                User newUser = new User(userId, username, hashedPassword, salt, firstName, lastName, false);
+                User newUser = new User(username, hashedPassword, salt, firstName, lastName, false);
                 
                 // Add the user to the database
                 return userDAO.addUser(newUser);
@@ -82,9 +82,9 @@ public class UserController {
         return false;
     }
 
-    public int getNextUserId() throws SQLException {
-        return userDAO.getLastUserId() + 1;
-    }
+//    public int getNextUserId() throws SQLException {
+//        return userDAO.getLastUserId() + 1;
+//    }
 
 }
 

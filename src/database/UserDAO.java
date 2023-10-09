@@ -16,16 +16,16 @@ public class UserDAO {
 
     // Method to add a new user to the database
     public boolean addUser(User user) throws SQLException {
-        String query = "INSERT INTO User (UserID, Username, HashedPassword, Salt, FirstName, LastName, IsVIP) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO User (Username, HashedPassword, Salt, FirstName, LastName, IsVIP) VALUES (?, ?, ?, ?, ?, ?)";
         
         PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
-        preparedStatement.setInt(1, user.getUserId());
-        preparedStatement.setString(2, user.getUsername());
-        preparedStatement.setString(3, user.getHashedPassword());
-        preparedStatement.setString(4, user.getSalt());
-        preparedStatement.setString(5, user.getFirstName());
-        preparedStatement.setString(6, user.getLastName());
-        preparedStatement.setBoolean(7, user.isVIP());
+        //preparedStatement.setInt(1, user.getUserId());
+        preparedStatement.setString(1, user.getUsername());
+        preparedStatement.setString(2, user.getHashedPassword());
+        preparedStatement.setString(3, user.getSalt());
+        preparedStatement.setString(4, user.getFirstName());
+        preparedStatement.setString(5, user.getLastName());
+        preparedStatement.setBoolean(6, user.isVIP());
 
         return preparedStatement.executeUpdate() > 0;
     }
@@ -50,7 +50,7 @@ public class UserDAO {
             ResultSet resultSet = preparedStatement.executeQuery();
             if (resultSet.next()) {
                 return new User(
-                    resultSet.getInt("UserID"),
+                	resultSet.getInt("UserID"),
                     resultSet.getString("Username"),
                     resultSet.getString("HashedPassword"),
                     resultSet.getString("Salt"),
