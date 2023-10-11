@@ -2,7 +2,6 @@ package views;
 
 import controllers.PostController;
 import controllers.UserController;
-import database.DBManager;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -24,12 +23,14 @@ public class LoginView {
     private TextField usernameField;
     private PasswordField passwordField;
     private Button loginButton, signupButton;
-    //private PostController postController;
+    private PostController postController;
     private UserController userController;
+    private TextField visiblePasswordField;
+    private ImageView togglePasswordVisibility;	
 
-    public LoginView(Stage stage, UserController userController) {
+    public LoginView(Stage stage, UserController userController, PostController postController) {
         this.userController = userController;
-//        this.postController = postController;
+        this.postController = postController;
         this.stage = stage;
         initializeComponents();
     }
@@ -37,7 +38,7 @@ public class LoginView {
     private void initializeComponents() {
         // Initialize GUI components
     	// Logo or image at the top
-        ImageView logoView = new ImageView(new Image("/image/lock.png"));
+        ImageView logoView = new ImageView(new Image("/image/DAH.png"));
         logoView.setFitWidth(100);
         logoView.setPreserveRatio(true);
         
@@ -55,6 +56,21 @@ public class LoginView {
         passwordField = new PasswordField();
         passwordField.setPromptText("Password");
         
+        // Create the visible password field (which will start as hidden)
+        visiblePasswordField = new TextField();
+        visiblePasswordField.setPromptText("Password");
+        visiblePasswordField.setVisible(false);  // start as hidden
+
+        // Create the eye toggle
+        Image eyeImage = new Image("/image/eye.png"); // replace with your path to the eye image
+        togglePasswordVisibility = new ImageView(eyeImage);
+        togglePasswordVisibility.setFitWidth(12);
+        togglePasswordVisibility.setPreserveRatio(true);
+        togglePasswordVisibility.setOnMouseClicked(e -> handleTogglePasswordVisibility());
+
+        // Place the eye toggle at the end of the password fields
+        GridPane.setMargin(togglePasswordVisibility, new Insets(0, 10, 0, -25));  // adjust as needed
+
         loginButton = new Button("Login");
         loginButton.setOnAction(e -> handleLogin());
         
@@ -74,6 +90,11 @@ public class LoginView {
         gridPane.add(passwordField, 1, 2);
         gridPane.add(loginButton, 0, 3);
         gridPane.add(signupButton, 1, 3);
+        
+        // Add these components to your gridPane:
+        gridPane.add(visiblePasswordField, 1, 2);  // occupy the same grid cell
+        gridPane.add(togglePasswordVisibility, 2, 2);
+        
 
         stage.setScene(new Scene(gridPane, 350, 250));
         stage.setTitle("Login");
@@ -88,7 +109,7 @@ public class LoginView {
         User user = userController.loginUser(username, password);
         if (user != null) {
             // Successful login, switch to DashboardView
-            new DashboardView(user, new PostController(new DBManager()), userController);
+            new DashboardView(user, postController, userController);
             stage.close();
         } else {
             // Show error message
@@ -100,6 +121,21 @@ public class LoginView {
         // Switch to SignupView
         new SignupView(userController);
         stage.close();
+    }
+   
+    // Method to handle the visibility toggle:
+    private void handleTogglePasswordVisibility() {
+        if (passwordField.isVisible()) {
+            // copy the password from the password field to the plain text field
+            visiblePasswordField.setText(passwordField.getText());
+            passwordField.setVisible(false);
+            visiblePasswordField.setVisible(true);
+        } else {
+            // copy the password from the plain text field to the password field
+            passwordField.setText(visiblePasswordField.getText());
+            passwordField.setVisible(true);
+            visiblePasswordField.setVisible(false);
+        }
     }
 
     private void showError(String message) {
