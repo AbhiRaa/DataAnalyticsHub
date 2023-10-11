@@ -1,5 +1,6 @@
 package main;
 
+import controllers.PostController;
 import controllers.UserController;
 import database.DBManager;
 import javafx.application.Application;
@@ -7,15 +8,26 @@ import javafx.stage.Stage;
 import views.LoginView;
 
 public class Main extends Application {
+	
+	private DBManager dbManager;
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
-    	DBManager manager = new DBManager();
-    	UserController userController = new UserController(manager);
+    	dbManager = new DBManager(); // instantiate it once
+    	UserController userController = new UserController(dbManager);
+    	PostController postController = new PostController(dbManager);
          
         // Launch the LoginView
-        new LoginView(primaryStage, userController);
+        new LoginView(primaryStage, userController, postController);
+    }
+    
+    @Override
+    public void stop() {
+        // This method is called when the application is exiting.
+        if (dbManager != null) {
+            dbManager.close();
+        }
     }
 
     public static void main(String[] args) {
