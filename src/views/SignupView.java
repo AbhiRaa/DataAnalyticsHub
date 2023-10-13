@@ -1,5 +1,6 @@
 package views;
 
+import controllers.PostController;
 import controllers.UserController;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
@@ -19,11 +20,11 @@ public class SignupView {
     private PasswordField passwordField, confirmPasswordField;
     private Button signupButton, backButton;
     private UserController userController;
-    //private PostController postController;
+    private PostController postController;
 
     public SignupView(UserController userController) {
         this.userController = userController;
-//        this.postController = postController;
+        this.postController = postController;
         this.stage = new Stage();
         initializeComponents();
     }
@@ -93,7 +94,7 @@ public class SignupView {
 
             boolean registered = userController.registerUser(username, password, firstName, lastName);
             if (registered) {
-                new LoginView(stage, userController);
+                new LoginView(stage, userController, postController);
                 //stage.close();
             } else {
                 showError("Username already exists!");
@@ -105,7 +106,7 @@ public class SignupView {
 
     private void handleBack() {
         // Switch back to LoginView
-        new LoginView(stage, userController);
+        new LoginView(stage, userController, postController);
        // stage.close();
     }
 
