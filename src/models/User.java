@@ -1,7 +1,6 @@
 package models;
 
-public class User {
-
+public class User extends Auditable {
 
 	private int userId;
 	private String username;

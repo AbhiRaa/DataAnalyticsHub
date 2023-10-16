@@ -7,7 +7,7 @@ import java.time.format.DateTimeFormatter;
 /**
  * Represents a social media post.
  */
-public class Post {
+public class Post extends Auditable {
 	
 	// Unique identifier for the post
     private int postId;
@@ -50,17 +50,29 @@ public class Post {
         this.shares = shares;
         this.userId = userId;
         // Convert the provided date-time string to a LocalDateTime object using the formatter
-        this.dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+      // this.dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+     // Check if the string is in ISO format
+        if (dateTimeStr.contains("T")) {
+            this.dateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        } else {
+            this.dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+        }
     }
     
     // Constructor without PostID
-    public Post(String content, String author, int likes, int shares, String dateTime, int userId) {
+    public Post(String content, String author, int likes, int shares, String dateTimeStr, int userId) {
         this.content = content;
         this.author = author;
         this.likes = likes;
         this.shares = shares;
-        this.dateTime = LocalDateTime.parse(dateTime, formatter);
+        //this.dateTime = LocalDateTime.parse(dateTime, formatter);
         this.userId = userId;
+     // Check if the string is in ISO format
+        if (dateTimeStr.contains("T")) {
+            this.dateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        } else {
+            this.dateTime = LocalDateTime.parse(dateTimeStr, formatter);
+        }
     }
 
     // Getter methods to access the private attributes of the Post class:
