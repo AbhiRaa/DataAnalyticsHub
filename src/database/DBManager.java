@@ -23,6 +23,18 @@ public class DBManager {
         }
         return instance;
     }
+    
+//    // Singleton pattern to manage the SQLite connection
+//    public static DBManager getInstance() throws SQLException {
+//        if (instance == null) {
+//            instance = new DBManager();
+//        } else if (instance.getConnection().isClosed()) {
+//            instance.close(); // Close the connection if it's not closed already
+//            instance = new DBManager(); // Then reinitialize
+//        }
+//        return instance;
+//    }
+
 
     public Connection getConnection() {
         return this.connection;
@@ -35,6 +47,8 @@ public class DBManager {
             System.out.println("Connection to Data Analytics Hub SQLite database established.");
         } catch (SQLException e) {
             System.err.println("Error while connecting to the SQLite database: " + e.getMessage());
+            e.printStackTrace();
+
         }
     }
 
@@ -45,13 +59,15 @@ public class DBManager {
                 // Users table creation
                 try (Statement stmt = connection.createStatement()) {
                     String createUsersTable = "CREATE TABLE User (" +
-                                              "UserID INTEGER UNIQUE PRIMARY KEY," +
+                                              "UserID INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT," +
                                               "Username VARCHAR(100) UNIQUE," +
                                               "HashedPassword VARCHAR(100)," +
                                               "Salt VARCHAR(100)," +
                                               "FirstName VARCHAR(100)," +
                                               "LastName VARCHAR(100)," +
-                                              "IsVIP BOOLEAN)";
+                                              "IsVIP BOOLEAN," +
+                                              "CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP," +
+                                              "UpdatedOn DATETIME DEFAULT CURRENT_TIMESTAMP)";
                     stmt.execute(createUsersTable);
                     System.out.println("User table created successfully.");
                 }
@@ -63,13 +79,15 @@ public class DBManager {
                 // Posts table creation
                 try (Statement stmt = connection.createStatement()) {
                     String createPostsTable = "CREATE TABLE Post (" +
-                                              "PostID INTEGER UNIQUE PRIMARY KEY," +
-                                              "UserID INTEGER," +
+                                              "PostID INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT," +
                                               "Content VARCHAR(100)," +
                                               "Author VARCHAR(100)," +
                                               "Likes INTEGER," +
                                               "Shares INTEGER," +
                                               "DateTime VARCHAR(100)," +
+                                              "UserID INTEGER," +
+                                              "CreatedDate DATETIME DEFAULT CURRENT_TIMESTAMP," +
+                                              "UpdatedOn DATETIME DEFAULT CURRENT_TIMESTAMP," +
                                               "FOREIGN KEY(UserID) REFERENCES User(UserID))";
                     stmt.execute(createPostsTable);
                     System.out.println("Post table created successfully.");
@@ -80,6 +98,8 @@ public class DBManager {
 
         } catch (SQLException e) {
             System.err.println("Error during database initialization: " + e.getMessage());
+            e.printStackTrace();
+
         }
     }
     
@@ -110,6 +130,7 @@ public class DBManager {
             }
         } catch (SQLException e) {
             System.err.println("Error while closing the SQLite database connection: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }
