@@ -5,7 +5,7 @@ import controllers.UserController;
 import database.DBManager;
 import javafx.application.Application;
 import javafx.stage.Stage;
-import views.LoginView;
+import views.EntryView;
 
 public class Main extends Application {
 	
@@ -19,7 +19,7 @@ public class Main extends Application {
     	PostController postController = new PostController(dbManager);
          
         // Launch the LoginView
-        new LoginView(primaryStage, userController, postController);
+        new EntryView(primaryStage, userController, postController);
     }
     
     @Override
