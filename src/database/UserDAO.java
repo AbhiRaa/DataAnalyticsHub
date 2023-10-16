@@ -16,7 +16,8 @@ public class UserDAO {
 
     // Method to add a new user to the database
     public boolean addUser(User user) throws SQLException {
-        String query = "INSERT INTO User (Username, HashedPassword, Salt, FirstName, LastName, IsVIP) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO User (Username, HashedPassword, Salt, FirstName, LastName, IsVIP, CreatedDate, UpdatedOn) "
+        		+ "VALUES (?, ?, ?, ?, ?, ?, DATETIME('now', 'localtime'), DATETIME('now', 'localtime'))";
         
         PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
         //preparedStatement.setInt(1, user.getUserId());
@@ -65,7 +66,8 @@ public class UserDAO {
 
     // Method to update user profile details using PreparedStatement
     public void updateUserProfile(User user) throws SQLException {
-        String query = "UPDATE User SET Username = ?, HashedPassword = ?, Salt = ?, FirstName = ?, LastName = ? WHERE UserID = ?";
+        String query = "UPDATE User SET Username = ?, HashedPassword = ?, Salt = ?, FirstName = ?, LastName = ?, UpdatedOn = DATETIME('now', 'localtime')"
+        		+ " WHERE UserID = ?";
         
         try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query)) {
             preparedStatement.setString(1, user.getUsername());
@@ -78,10 +80,36 @@ public class UserDAO {
             preparedStatement.executeUpdate();
         }
     }
+    
+    public String getHashedPassword(String username) throws SQLException {
+        String query = "SELECT HashedPassword FROM User WHERE Username = ?";
+        
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+        preparedStatement.setString(1, username);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+            return resultSet.getString("HashedPassword");
+        }
+        return null;
+    }
+    
+    public boolean updateUserPassword(User user, String newHashedPassword, String newSalt) throws SQLException {
+        String query = "UPDATE User SET HashedPassword = ?, Salt = ?, UpdatedOn = DATETIME('now', 'localtime') WHERE UserID = ?";
+        
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+        preparedStatement.setString(1, newHashedPassword); // assuming newPassword is already hashed
+        preparedStatement.setString(2, newSalt);
+        preparedStatement.setInt(3, user.getUserId());
+        
+        int updatedRows = preparedStatement.executeUpdate();
+        return updatedRows > 0;
+    }
+
 
     // Method to upgrade a user to VIP status
     public void upgradeToVIP(User user) throws SQLException {
-        String query = "UPDATE User SET IsVIP = true WHERE UserID = ?";
+        String query = "UPDATE User SET IsVIP = true, updatedOn = DATETIME('now', 'localtime') WHERE UserID = ?";
         
         try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query)) {
             preparedStatement.setInt(1, user.getUserId());

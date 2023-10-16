@@ -8,12 +8,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import models.Post;
+import models.User;
 
 public class PostDAO {
 
     private DBManager dbManager;
     
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy HH:mm");
+    //private static DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
 
     public PostDAO(DBManager dbManager) {
         this.dbManager = dbManager;
@@ -21,7 +24,8 @@ public class PostDAO {
 
     // Method to add a new post to the database
     public void addPost(Post post) throws SQLException {
-        String query = "INSERT INTO Post (Content, Author, Likes, Shares, DateTime, UserID) VALUES (?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO Post (Content, Author, Likes, Shares, DateTime, UserID, CreatedDate, UpdatedOn)"
+        		+ " VALUES (?, ?, ?, ?, ?, ?, DATETIME('now', 'localtime'), DATETIME('now', 'localtime'))";
         
         PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
         preparedStatement.setString(1, post.getContent());
@@ -99,9 +103,10 @@ public class PostDAO {
         return 	0; // return 0 if no posts are found
     }
 
- // Method to update an existing post in the database using PreparedStatement
+    // Method to update an existing post in the database using PreparedStatement
     public void updatePost(Post post) throws SQLException {
-        String query = "UPDATE Post SET Content = ?, Author = ?, Likes = ?, Shares = ?, DateTime = ? WHERE PostID = ? AND UserID = ?";
+        String query = "UPDATE Post SET Content = ?, Author = ?, Likes = ?, Shares = ?, DateTime = ?, UpdatedOn = DATETIME('now', 'localtime')"
+        		+ " WHERE PostID = ? AND UserID = ?";
 
         PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
         
@@ -115,6 +120,51 @@ public class PostDAO {
 
         preparedStatement.executeUpdate();
     }
+    
+    // Method to retrieve posts by a specific user
+    public List<Post> getPostsByUser(User user) throws SQLException {
+        String query = "SELECT * FROM Post WHERE UserID = ?";
 
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+        preparedStatement.setInt(1, user.getUserId());
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Post> posts = new ArrayList<>();
+        while (resultSet.next()) {
+            posts.add(new Post(
+                resultSet.getInt("PostID"),
+                resultSet.getString("Content"),
+                resultSet.getString("Author"),
+                resultSet.getInt("Likes"),
+                resultSet.getInt("Shares"),
+                resultSet.getString("DateTime"),
+                resultSet.getInt("UserID")
+            ));
+        }
+        return posts;
+    }
+
+    // Method to retrieve the top N posts with the most shares
+    public List<Post> getTopNPostsByShares(int n) throws SQLException {
+        String query = "SELECT * FROM Post ORDER BY Shares DESC LIMIT ?";
+
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+        preparedStatement.setInt(1, n);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Post> posts = new ArrayList<>();
+        while (resultSet.next()) {
+            posts.add(new Post(
+                resultSet.getInt("PostID"),
+                resultSet.getString("Content"),
+                resultSet.getString("Author"),
+                resultSet.getInt("Likes"),
+                resultSet.getInt("Shares"),
+                resultSet.getString("DateTime"),
+                resultSet.getInt("UserID")
+            ));
+        }
+        return posts;
+    }
 }
 
