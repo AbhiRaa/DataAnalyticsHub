@@ -5,6 +5,7 @@ import controllers.UserController;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
@@ -37,22 +38,25 @@ public class EntryView {
         loadingBar.setStyle("-fx-accent: #2E8B57;");  // Color for the loading bar
 
         VBox vbox = new VBox(10, welcomeLabel, loadingBar);
-        BorderPane root = new BorderPane(vbox);
-        root.setStyle("-fx-background-color: #F5F5F5;");  // Background color for the view
+        vbox.setAlignment(Pos.CENTER);  // Center the VBox contents
 
-        Scene scene = new Scene(root, 400, 200);
+        BorderPane root = new BorderPane();
+        root.setCenter(vbox);  // Center the VBox in the BorderPane
+        root.setStyle("-fx-background-color: #F5F5F5;");  // Background color for the view
+        
+        Scene scene = new Scene(root, 400, 300);
         stage.setScene(scene);
         stage.setTitle("Welcome");
         stage.show();
 
         // Animation for the loading bar
         Timeline timeline = new Timeline(
-            new KeyFrame(Duration.seconds(3), new KeyValue(loadingBar.progressProperty(), 1))
+            new KeyFrame(Duration.seconds(2), new KeyValue(loadingBar.progressProperty(), 1))
         );
 
         // After animation completes, navigate to the login page
         timeline.setOnFinished(e -> {
-            new LoginView(stage, userController, postController);  // You can replace this with your login page's view class
+            new LoginView(stage, userController, postController);
         });
 
         timeline.play();
