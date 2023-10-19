@@ -95,16 +95,19 @@ public class ProfileView {
             }
 
             if (!password.isEmpty()) {
+            	if (confirmPassword.isEmpty()) {
+            		viewFacade.showAlert(AlertType.ERROR, "Error", "Confirm password is empty.");
+                    return;
+            	}
             	if (password.length() < 6) {
                     viewFacade.showAlert(AlertType.ERROR, "Error", "Password should be at least 6 characters long!");
                     return;
                 }
                 if (!password.equals(confirmPassword)) {
-                    viewFacade.showAlert(AlertType.ERROR, "Error", "Passwords do not match!");
+                    viewFacade.showAlert(AlertType.ERROR, "Error", "Passwords do not match.");
                     return;
                 }
-
-                if (viewFacade.isPasswordSameAsOld(username, password, user.getSalt())) {
+                if (viewFacade.isPasswordSameAsOld(user.getUserId(), password, user.getSalt())) {
                     viewFacade.showAlert(AlertType.ERROR, "Error", "New password should be different from the previous one.");
                     return;
                 }
@@ -113,24 +116,25 @@ public class ProfileView {
             user.setUsername(username);
             user.setFirstName(firstName);
             user.setLastName(lastName);
-
-            if (!password.isEmpty()) {
-                boolean isUpdated = viewFacade.updateUserPassword(user, password);
-                if (isUpdated) {
-                	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Password updated successfully.");
-                } else {
-                	viewFacade.showAlert(AlertType.ERROR, "Error", "Error occured while updating password. Try again.");
-                }
+            
+            boolean isUpdated = true;
+            if (!password.isEmpty() && !confirmPassword.isEmpty()) {
+                isUpdated = viewFacade.updateUserPassword(user, password);
             }
 
-            boolean updated = viewFacade.updateUserProfile(user);
-            if (updated) {
-            	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Profile updated successfully.");
+            if (isUpdated) {
+                isUpdated = viewFacade.updateUserProfile(user);
+            }
+
+            if (isUpdated) {
+                viewFacade.showAlert(AlertType.INFORMATION, "Success", "Profile updated successfully.");
                 viewFacade.navigateToDashboard(user);
             } else {
                 viewFacade.showAlert(AlertType.ERROR, "Error", "Error updating profile. Please try again.");
             }
+            
     	} catch (Exception e) {
+    		 e.printStackTrace();
             viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
     	}
     }

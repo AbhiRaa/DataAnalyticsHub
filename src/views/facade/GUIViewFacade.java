@@ -164,8 +164,8 @@ public class GUIViewFacade {
     	return userController.usernameExists(username);
     }
     
-    public boolean isPasswordSameAsOld(String username, String password, String salt) {
-        String hashedOldPassword = userController.getHashedPassword(username);
+    public boolean isPasswordSameAsOld(int userId, String password, String salt) {
+        String hashedOldPassword = userController.getHashedPassword(userId);
         return hashedOldPassword.equals(PasswordUtils.hashPassword(password, salt));
     }
     

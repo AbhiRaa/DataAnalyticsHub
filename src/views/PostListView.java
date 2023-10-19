@@ -79,7 +79,8 @@ public class PostListView {
 
 		postsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 		    if (newSelection != null) {
-		        if (newSelection.getAuthor().equals(user.getUsername())) {
+		    	// Comparison on user ID because username is changeable
+		    	if (newSelection.getUserId() == user.getUserId()) {			
 		            // Enable buttons if the post belongs to the current user
 		            editButton.setDisable(false);
 		            deleteButton.setDisable(false);

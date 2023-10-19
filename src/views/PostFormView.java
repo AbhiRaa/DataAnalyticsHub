@@ -73,7 +73,12 @@ public class PostFormView {
         saveButton.setOnAction(e -> handleSave(existingPost));
 
         cancelButton = new Button("Cancel");
-        cancelButton.setOnAction(e -> handleCancel());
+        cancelButton.setOnAction(e -> {
+        	if (existingPost == null) 
+        		viewFacade.navigateToDashboard(user); 
+        	else
+        		viewFacade.navigateToMyPosts(user);
+        });
 
         VBox postLayout = new VBox(10);
         postLayout.getChildren().addAll(new Label("Content"), contentField, 
@@ -156,11 +161,4 @@ public class PostFormView {
             viewFacade.showAlert(AlertType.ERROR, "Error", "Error saving the post. Please ensure all fields are correctly filled.");
         }
     }
-
-
-    private void handleCancel() {
-        // new DashboardView(stage, user, postController, new UserController(new DBManager())); // Return to the Dashboard
-    	viewFacade.navigateToDashboard(user); 	// Return to the Dashboard
-    }
 }
-
