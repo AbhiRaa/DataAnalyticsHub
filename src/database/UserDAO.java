@@ -81,11 +81,11 @@ public class UserDAO {
         }
     }
     
-    public String getHashedPassword(String username) throws SQLException {
-        String query = "SELECT HashedPassword FROM User WHERE Username = ?";
+    public String getHashedPassword(int userId) throws SQLException {
+        String query = "SELECT HashedPassword FROM User WHERE UserID = ?";
         
         PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
-        preparedStatement.setString(1, username);
+        preparedStatement.setInt(1, userId);
         
         ResultSet resultSet = preparedStatement.executeQuery();
         if (resultSet.next()) {
