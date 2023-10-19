@@ -14,17 +14,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import views.facade.GUIViewFacade;
 
 public class EntryView {
 
 	private Stage stage;
-	private PostController postController;
-	private UserController userController;
+	private GUIViewFacade viewFacade;
 
     public EntryView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;
-        this.userController = userController;
-        this.postController = postController;
+        this.viewFacade = new GUIViewFacade(stage, userController, postController);
         initializeComponents();
     }
 
@@ -56,7 +55,7 @@ public class EntryView {
 
         // After animation completes, navigate to the login page
         timeline.setOnFinished(e -> {
-            new LoginView(stage, userController, postController);
+            viewFacade.navigateToLogin();
         });
 
         timeline.play();

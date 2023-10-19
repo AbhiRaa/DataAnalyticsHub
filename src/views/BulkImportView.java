@@ -6,48 +6,48 @@ import java.util.List;
 import controllers.PostController;
 import controllers.UserController;
 import exceptions.CsvLoadingException;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
-import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import models.Post;
 import models.User;
-import utils.CSVUtils;
+import views.facade.GUIViewFacade;
 
 public class BulkImportView {
 
     private Stage stage;
     private User user;
-    private PostController postController;
-    private UserController userController;
-    private FileChooser fileChooser;
     private Button importButton, backButton, saveButton;
     private ListView<String> postListView;
     private List<Post> validPosts;
+    private GUIViewFacade viewFacade;
 
     public BulkImportView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;
-    	this.postController = postController;
-    	this.userController = userController;
         this.stage = stage;
+        this.viewFacade = new GUIViewFacade(stage, userController, postController);
         initializeComponents();
     }
 
     private void initializeComponents() {
-        fileChooser = new FileChooser();
-        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV Files", "*.csv"));
         
         postListView = new ListView<>();
         
-        importButton = new Button("Select CSV");
+        importButton = new Button("Select");
         importButton.setOnAction(e -> {
-            File selectedFile = fileChooser.showOpenDialog(stage);
+        	
+            File selectedFile = viewFacade.handleImportPost();
             if (selectedFile != null) {
             	previewImportedPosts(selectedFile);
+            } else {
+            	viewFacade.showAlert(AlertType.ERROR, "Error", "No file selected!");
             }
         });
         
@@ -57,27 +57,38 @@ public class BulkImportView {
         
         backButton = new Button("Back");
         backButton.setOnAction(e -> {
-        	new DashboardView(stage, user, postController, userController);
+        	viewFacade.navigateToDashboard(user);
         });
+        
+        // Add label "Choose a CSV file"
+        Label csvLabel = new Label("Choose a CSV file");
+        
+        HBox chooserLayout = new HBox(10);
+        chooserLayout.getChildren().addAll(csvLabel, importButton);
+        chooserLayout.setAlignment(Pos.TOP_LEFT);
+        chooserLayout.setPadding(new Insets(20, 20, 30, 20));
+       
 
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(importButton, postListView, saveButton, backButton);
+        VBox mainLayout = new VBox(10);
+        mainLayout.getChildren().addAll(chooserLayout, postListView, saveButton, backButton);
+        mainLayout.setAlignment(Pos.CENTER);
+        mainLayout.setPadding(new Insets(20, 20, 30, 20));
 
-        stage.setScene(new Scene(layout, 500, 400));
+        stage.setScene(new Scene(mainLayout, 500, 400));
         stage.setTitle("Bulk Import");
         stage.show();
     }
     
     private void previewImportedPosts(File selectedFile) {
         try {
-            validPosts = CSVUtils.readPosts(selectedFile.getAbsolutePath(), user);
+            validPosts = viewFacade.previewImportedPosts(selectedFile, user);
             postListView.getItems().clear();
             for (Post post : validPosts) {
                 postListView.getItems().add(formatPostForDisplay(post));
             }
             saveButton.setDisable(false);
         } catch (CsvLoadingException e) {
-            showAlert(AlertType.ERROR, "Error", "Error reading CSV file: " + e.getMessage());
+        	viewFacade.showAlert(AlertType.ERROR, "Error", "Error reading CSV file: " + e.getMessage());
         }
     }
     
@@ -86,21 +97,12 @@ public class BulkImportView {
     }
 
     private void handleSave() {
-        boolean success = postController.addBulkPosts(validPosts);
+        boolean success = viewFacade.addBulkPosts(validPosts);
         if (success) {
-            showAlert(AlertType.INFORMATION, "Success", "Posts imported successfully!");
-            new DashboardView(stage, user, postController, userController);
+        	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Posts imported successfully!");
+            viewFacade.navigateToDashboard(user);
         } else {
-            showAlert(AlertType.ERROR, "Error", "There was an error importing posts.");
+        	viewFacade.showAlert(AlertType.ERROR, "Error", "There was an error importing posts.");
         }
     }
-    
-    private void showAlert(AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
 }
-

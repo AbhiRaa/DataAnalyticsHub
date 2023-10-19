@@ -1,6 +1,7 @@
 package utils;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -90,26 +91,30 @@ public class CSVUtils {
 	        }
 	        return value;
 	    }
-
-    private static final String CSV_DELIMITER = ",";
-
-    public static List<String[]> readFromCSV(String filePath) throws IOException {
-        List<String[]> records = new ArrayList<>();
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                records.add(line.split(CSV_DELIMITER));
-            }
-        }
-        return records;
-    }
-
-    public static void writeToCSV(String filePath, List<String[]> data) throws IOException {
-        try (FileWriter writer = new FileWriter(filePath)) {
-            for (String[] record : data) {
-                writer.append(String.join(CSV_DELIMITER, record));
-                writer.append("\n");
-            }
-        }
-    }
+	    
+	    public static boolean savePostToFile(Post post, File file) {
+	        try (FileWriter fileWriter = new FileWriter(file)) {
+	            fileWriter.append("ID,Content,Author,Likes,Shares,DateTime\n");
+	            fileWriter.append(String.valueOf(post.getPostId()));
+	            fileWriter.append(",");
+	            fileWriter.append(post.getContent());
+	            fileWriter.append(",");
+	            fileWriter.append(post.getAuthor());
+	            fileWriter.append(",");
+	            fileWriter.append(String.valueOf(post.getLikes()));
+	            fileWriter.append(",");
+	            fileWriter.append(String.valueOf(post.getShares()));
+	            fileWriter.append(",");
+	            fileWriter.append(post.getDateTime().toString());
+	            fileWriter.append("\n");
+	            
+	            fileWriter.flush();
+	            fileWriter.close();
+	            
+	            return true;
+	        } catch (IOException e) {
+	            System.out.println("Error writing to file: " + e.getMessage());
+	            return false;
+	        }
+	    }
 }

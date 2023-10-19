@@ -2,35 +2,44 @@ package views;
 
 import controllers.PostController;
 import controllers.UserController;
-import database.DBManager;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.User;
-import utils.PasswordUtils;
+import views.facade.GUIViewFacade;
 
 public class ProfileView {
 
     private Stage stage;
-    private UserController userController;
     private User user;
     private TextField usernameField, firstNameField, lastNameField;
     private PasswordField passwordField, confirmPasswordField;
     private Button saveButton, backButton;
+    
+    private GUIViewFacade viewFacade;
 
-    public ProfileView(UserController userController, User user) {
-        this.userController = userController;
+    public ProfileView(Stage stage, User user, UserController userController, PostController postController) {
         this.user = user;
-        this.stage = new Stage();
+        this.stage = stage;
+        this.viewFacade = new GUIViewFacade(stage, userController, postController);
         initializeComponents();
     }
 
     private void initializeComponents() {
+    	
+    	ImageView logoView = new ImageView(new Image("/image/resume.png"));
+        logoView.setFitWidth(100);
+        logoView.setPreserveRatio(true);
+        
         usernameField = new TextField();
         usernameField.setText(user.getUsername());
 
@@ -52,83 +61,82 @@ public class ProfileView {
         backButton = new Button("Back");
         backButton.setOnAction(e -> handleBack());
 
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(new Label("Username:"), usernameField, 
-                new Label("First Name:"), firstNameField,
-                new Label("Last Name:"), lastNameField,
-                new Label("New Password:"), passwordField,
-                new Label("Confirm Password:"), confirmPasswordField,
-                saveButton, backButton);
+        VBox userlayout = new VBox(10);
+        userlayout.getChildren().addAll(new Label("Username"), usernameField, 
+                new Label("First Name"), firstNameField,
+                new Label("Last Name"), lastNameField,
+                new Label("New Password"), passwordField,
+                new Label("Confirm Password"), confirmPasswordField);
+        userlayout.setAlignment(Pos.CENTER_LEFT);
+        userlayout.setPadding(new Insets(20, 20, 30, 20));
 
-        stage.setScene(new Scene(layout, 350, 400));
+        VBox mainLayout = new VBox(10);
+        mainLayout.getChildren().addAll(logoView, userlayout, saveButton, backButton);
+        mainLayout.setAlignment(Pos.CENTER);
+        mainLayout.setPadding(new Insets(20, 20, 30, 20));
+
+        stage.setScene(new Scene(mainLayout, 400, 600));
         stage.setTitle("Edit Profile");
         stage.show();
     }
 
     private void handleSave() {
-        String username = usernameField.getText();
-        String firstName = firstNameField.getText();
-        String lastName = lastNameField.getText();
-        String password = passwordField.getText();
-        String confirmPassword = confirmPasswordField.getText();
+    	try {
+    		String username = usernameField.getText();
+            String firstName = firstNameField.getText();
+            String lastName = lastNameField.getText();
+            String password = passwordField.getText();
+            String confirmPassword = confirmPasswordField.getText();
 
-        // Check if username has changed and if the new one is unique
-        if (!user.getUsername().equals(username) && userController.usernameExists(username)) {
-            showError("The username is already taken.");
-            return;
-        }
-
-        if (!password.isEmpty()) {
-            if (!password.equals(confirmPassword)) {
-                showError("Passwords do not match!");
+            // Check if username has changed and if the new one is unique
+            if (!user.getUsername().equals(username) && viewFacade.checkUsernameExist(username)) {
+            	viewFacade.showAlert(AlertType.ERROR, "Error", "The username is already taken.");
                 return;
             }
 
-            String hashedOldPassword = userController.getHashedPassword(username);
-            if (hashedOldPassword.equals(PasswordUtils.hashPassword(password, user.getSalt()))) {
-                showError("New password should be different from the previous one.");
-                return;
+            if (!password.isEmpty()) {
+            	if (password.length() < 6) {
+                    viewFacade.showAlert(AlertType.ERROR, "Error", "Password should be at least 6 characters long!");
+                    return;
+                }
+                if (!password.equals(confirmPassword)) {
+                    viewFacade.showAlert(AlertType.ERROR, "Error", "Passwords do not match!");
+                    return;
+                }
+
+                if (viewFacade.isPasswordSameAsOld(username, password, user.getSalt())) {
+                    viewFacade.showAlert(AlertType.ERROR, "Error", "New password should be different from the previous one.");
+                    return;
+                }
             }
-        }
 
-        user.setUsername(username);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+            user.setUsername(username);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
 
-        if (!password.isEmpty()) {
-            userController.updateUserPassword(user, password);
-        }
+            if (!password.isEmpty()) {
+                boolean isUpdated = viewFacade.updateUserPassword(user, password);
+                if (isUpdated) {
+                	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Password updated successfully.");
+                } else {
+                	viewFacade.showAlert(AlertType.ERROR, "Error", "Error occured while updating password. Try again.");
+                }
+            }
 
-        boolean updated = userController.updateUserProfile(user);
-        if (updated) {
-            showInfo("Profile updated successfully.");
-            new DashboardView(user, new PostController(new DBManager()), userController);
-            stage.close();
-        } else {
-            showError("Error updating profile. Please try again.");
-        }
+            boolean updated = viewFacade.updateUserProfile(user);
+            if (updated) {
+            	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Profile updated successfully.");
+                viewFacade.navigateToDashboard(user);
+            } else {
+                viewFacade.showAlert(AlertType.ERROR, "Error", "Error updating profile. Please try again.");
+            }
+    	} catch (Exception e) {
+            viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
+    	}
     }
 
 
     private void handleBack() {
-        new DashboardView(user, new PostController(new DBManager()), userController);
-        stage.close();
-    }
-
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-    
-    private void showInfo(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Info");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    	viewFacade.navigateToDashboard(user);
     }
 }
-

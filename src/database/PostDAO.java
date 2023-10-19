@@ -71,6 +71,29 @@ public class PostDAO {
     }
 
     // Method to retrieve the top N posts with the most likes
+    public List<Post> getTopNPostsByLikes(int n, User user) throws SQLException {
+        String query = "SELECT * FROM Post WHERE UserID = ? ORDER BY Likes DESC LIMIT ?";
+        
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+        preparedStatement.setInt(1, user.getUserId());
+        preparedStatement.setInt(2, n);
+        
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Post> posts = new ArrayList<>();
+        while (resultSet.next()) {
+            posts.add(new Post(
+                resultSet.getInt("PostID"),
+                resultSet.getString("Content"),
+                resultSet.getString("Author"),
+                resultSet.getInt("Likes"),
+                resultSet.getInt("Shares"),
+                resultSet.getString("DateTime"),
+                resultSet.getInt("UserID")
+            ));
+        }
+        return posts;
+    }
+
     public List<Post> getTopNPostsByLikes(int n) throws SQLException {
         String query = "SELECT * FROM Post ORDER BY Likes DESC LIMIT ?";
         
@@ -143,8 +166,53 @@ public class PostDAO {
         }
         return posts;
     }
+    
+    // Method to all retrieve posts
+    public List<Post> getAllPosts() throws SQLException {
+        String query = "SELECT * FROM Post";
+
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Post> posts = new ArrayList<>();
+        while (resultSet.next()) {
+            posts.add(new Post(
+                resultSet.getInt("PostID"),
+                resultSet.getString("Content"),
+                resultSet.getString("Author"),
+                resultSet.getInt("Likes"),
+                resultSet.getInt("Shares"),
+                resultSet.getString("DateTime"),
+                resultSet.getInt("UserID")
+            ));
+        }
+        return posts;
+    }
 
     // Method to retrieve the top N posts with the most shares
+    public List<Post> getTopNPostsByShares(int n, User user) throws SQLException {
+        String query = "SELECT * FROM Post WHERE UserID = ? ORDER BY Shares DESC LIMIT ?";
+
+        PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query);
+        preparedStatement.setInt(1, user.getUserId());
+        preparedStatement.setInt(2, n);
+
+        ResultSet resultSet = preparedStatement.executeQuery();
+        List<Post> posts = new ArrayList<>();
+        while (resultSet.next()) {
+            posts.add(new Post(
+                resultSet.getInt("PostID"),
+                resultSet.getString("Content"),
+                resultSet.getString("Author"),
+                resultSet.getInt("Likes"),
+                resultSet.getInt("Shares"),
+                resultSet.getString("DateTime"),
+                resultSet.getInt("UserID")
+            ));
+        }
+        return posts;
+    }
+    
     public List<Post> getTopNPostsByShares(int n) throws SQLException {
         String query = "SELECT * FROM Post ORDER BY Shares DESC LIMIT ?";
 

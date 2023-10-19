@@ -2,35 +2,51 @@ package views;
 
 import controllers.PostController;
 import controllers.UserController;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 import models.User;
+import views.facade.GUIViewFacade;
 
 public class DashboardView {
 
     private Stage stage;
     private User user;
-    private PostController postController;
-    private UserController userController;
-    private Label welcomeMessage;
-    private Button addPostButton, viewPostsButton, editProfileButton, logoutButton, vipUpgradeButton, dataVisualization, importPosts;
-
+    private Label welcomeMessage, vipStatusLabel;
+    private Button addPostButton, viewPostsButton, editProfileButton, logoutButton, dataVisualization, importPosts;
+    private Hyperlink vipUpgradeLink;
+    private Hyperlink cancelVIPSubscriptionLink = null;
+    
+    private GUIViewFacade viewFacade;
+    
     public DashboardView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;
-        this.postController = postController;
-        this.userController = userController;
         this.stage = stage;
+        
+        this.viewFacade = new GUIViewFacade(stage, userController, postController);
+        
         initializeComponents();
     }
 
     private void initializeComponents() {
+    	
         welcomeMessage = new Label("Welcome, " + user.getFirstName() + " " + user.getLastName() + "!");
-
+        welcomeMessage.setTextFill(Color.GREEN);
+        welcomeMessage.setFont(Font.font("Arial", 20));
+        
         addPostButton = new Button("Add Post");
         addPostButton.setOnAction(e -> handleAddPost());
 
@@ -42,79 +58,129 @@ public class DashboardView {
 
         logoutButton = new Button("Logout");
         logoutButton.setOnAction(e -> handleLogout());
+        
+        HBox userFeatures = new HBox(10, addPostButton, viewPostsButton, editProfileButton);
+        HBox vipFeatures = new HBox(10);
+        
+        userFeatures.setAlignment(Pos.CENTER);
+        vipFeatures.setAlignment(Pos.CENTER);
 
         if (!user.isVIP()) {
-            vipUpgradeButton = new Button("VIP Features");
-            vipUpgradeButton.setOnAction(e -> handleUpgradeToVIP());
+        	vipStatusLabel = new Label("Standard User");
+            vipStatusLabel.setTextFill(Color.GRAY); // Setting color to GRAY for standard status
+            
+            vipUpgradeLink = new Hyperlink("Become a VIP user.");
+            vipUpgradeLink.setOnAction(e -> handleUpgradeToVIP());
         } else {
-        	dataVisualization = new Button("Data Visualization");
+        	vipStatusLabel = new Label("VIP User");
+        	vipStatusLabel.setTextFill(Color.GOLD); // Setting color to GOLD for VIP status
+        	
+        	cancelVIPSubscriptionLink = new Hyperlink("Cancel VIP Subscription");
+        	cancelVIPSubscriptionLink.setOnAction(e -> handleDegrade());
+        	
+        	dataVisualization = new Button("Posts Visualization");
         	dataVisualization.setOnAction(e -> handleVisualization());
         	
         	importPosts = new Button("Import Posts");
         	importPosts.setOnAction(e -> handleImports());
+        	
+        	vipFeatures.getChildren().addAll(dataVisualization, importPosts);
         }
+        
+        vipStatusLabel.setFont(Font.font("Arial", FontPosture.ITALIC, 14)); // Styling the label
+        
+        // Add this Label to the top right corner of your BorderPane (mainLayout)
+        HBox topRightLayout = new HBox(vipStatusLabel);
+        topRightLayout.setAlignment(Pos.TOP_RIGHT);
+        topRightLayout.setPadding(new Insets(20, 20, 0, 0));  // Padding on top and right
+        
+        VBox centerLayout = new VBox(20);
+        centerLayout.getChildren().addAll(userFeatures, vipFeatures);
+        centerLayout.setAlignment(Pos.CENTER);
+        centerLayout.setPadding(new Insets(20));  // Add padding to the main layout
+        
+        // Logout icon
+        Image logoutImage = new Image(getClass().getResourceAsStream("/image/logout.png"));
+        ImageView logoutImageView = new ImageView(logoutImage);
+        logoutImageView.setFitHeight(30);
+        logoutImageView.setFitWidth(30);
+        logoutButton.setGraphic(logoutImageView);
 
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(welcomeMessage, addPostButton, viewPostsButton, editProfileButton, logoutButton);
-        if (!user.isVIP()) {
-            layout.getChildren().add(vipUpgradeButton);
+        HBox bottomRightLayout = new HBox(10);
+        if (vipUpgradeLink != null) {
+            bottomRightLayout.getChildren().addAll(vipUpgradeLink, logoutButton);
+        } else if (cancelVIPSubscriptionLink != null) {
+            bottomRightLayout.getChildren().addAll(cancelVIPSubscriptionLink, logoutButton);
         } else {
-        	layout.getChildren().add(dataVisualization);
-        	layout.getChildren().add(importPosts);
+            bottomRightLayout.getChildren().add(logoutButton);
         }
+        bottomRightLayout.setAlignment(Pos.BOTTOM_RIGHT);
+        bottomRightLayout.setPadding(new Insets(0, 20, 20, 0));  // Padding on right and bottom
 
-        stage.setScene(new Scene(layout, 300, 250));
+        BorderPane mainLayout = new BorderPane();
+        mainLayout.setTop(welcomeMessage);
+        mainLayout.setRight(topRightLayout);
+        mainLayout.setCenter(centerLayout);
+        mainLayout.setBottom(bottomRightLayout);
+        BorderPane.setAlignment(welcomeMessage, Pos.TOP_CENTER);
+        BorderPane.setMargin(welcomeMessage, new Insets(20, 0, 0, 0));
+
+        stage.setScene(new Scene(mainLayout, 600, 400));
         stage.setTitle("Dashboard");
         stage.show();
     }
 
 	private void handleAddPost() {
         // Switch to the PostFormView to allow the user to add a new post
-    	System.out.println("DashboardView - User's ID: " + user.getUserId());
+    	// System.out.println("DashboardView - User's ID: " + user.getUserId());
 
-        new PostFormView(stage, postController, user);
-        //stage.close();
+        // new PostFormView(stage, user, postController, userController);
+        viewFacade.navigateToAddPost(user);
     }
 
     private void handleViewPosts() {
         // Display a list of the user's posts, with options to view, edit, or delete each post
-        new PostListView(stage, postController, user);
-        //stage.close();
+        // new PostListView(stage, user, postController, userController);
+        viewFacade.navigateToMyPosts(user);
     }
 
     private void handleEditProfile() {
         // Switch to ProfileView to allow the user to edit their profile details
-        new ProfileView(stage, userController, user);
-        //stage.close();
+        // new ProfileView(stage, user, userController);
+        viewFacade.navigateToEditUserProfile(user);
     }
 
     private void handleLogout() {
         // Logout the user and return to the LoginView
-        new LoginView(stage, userController, postController);
-        //stage.close();
+        // new LoginView(stage, userController, postController);
+    	viewFacade.showAlert(AlertType.INFORMATION, "Logout", user.getUsername() + " logged-out successfully!");
+        viewFacade.navigateToLogin();
     }
 
     private void handleUpgradeToVIP() {
     	// Offer the user the option to upgrade to VIP status            
-        new UpgradeToVIPView(stage, user, userController, postController);
+        // new UpgradeToVIPView(stage, user, userController, postController);
+        viewFacade.navigateToUpgradeToVIP(user);
            
     }
     
+    private void handleDegrade() {
+		if (viewFacade.degradeToStandard(user)) {
+			viewFacade.showAlert(AlertType.INFORMATION, "Message", "Successfully cancelled VIP subscription.");
+			user.setVIP(false);
+			viewFacade.navigateToDashboard(user);
+		} else {
+			viewFacade.showAlert(AlertType.ERROR, "Error", "An error occurred during subscription cancel. Please try again.");
+		}
+	}
+    
     private void handleVisualization() {
-		new PieChartView(stage, user, userController, postController);
+		// new PieChartView(stage, user, userController, postController);
+    	viewFacade.navigateToVisualization(user);
 	}
     
     private void handleImports() {
-		new BulkImportView(stage, user, postController, userController);
-	}
-
-    private void showError(String message) {
-        // Display error message to user using a JavaFX Alert or similar
-    	 Alert alert = new Alert(AlertType.ERROR);
-         alert.setTitle("Error");
-         alert.setHeaderText(null);
-         alert.setContentText(message);
-         alert.showAndWait();
+		// new BulkImportView(stage, user, postController, userController);
+    	viewFacade.navigateToBulkImports(user);
     }
 }
-

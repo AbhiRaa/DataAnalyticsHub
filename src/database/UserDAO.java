@@ -116,6 +116,16 @@ public class UserDAO {
             preparedStatement.executeUpdate();
         }
     }
+    
+    // Method to degrade a user from VIP status
+    public void degradeToStandard(User user) throws SQLException {
+        String query = "UPDATE User SET IsVIP = false, updatedOn = DATETIME('now', 'localtime') WHERE UserID = ?";
+        
+        try (PreparedStatement preparedStatement = dbManager.getConnection().prepareStatement(query)) {
+            preparedStatement.setInt(1, user.getUserId());
+            preparedStatement.executeUpdate();
+        }
+    }
 
     public int getLastUserId() throws SQLException {
         String query = "SELECT MAX(UserID) as LastID FROM User";

@@ -3,10 +3,11 @@ package views;
 import controllers.PostController;
 import controllers.UserController;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
+import javafx.scene.control.Hyperlink;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
@@ -14,31 +15,34 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import models.User;
+import views.facade.GUIViewFacade;
 
 public class LoginView {
 
     private Stage stage;
     private TextField usernameField;
     private PasswordField passwordField;
-    private Button loginButton, signupButton;
-    private PostController postController;
-    private UserController userController;
+    private Button loginButton, exit;
+    private Hyperlink signupHyperlink;
     private TextField visiblePasswordField;
-    private ImageView togglePasswordVisibility;	
+    private ImageView togglePasswordVisibility;
+    
+    private GUIViewFacade viewFacade;
 
     public LoginView(Stage stage, UserController userController, PostController postController) {
-        this.userController = userController;
-        this.postController = postController;
         this.stage = stage;
+        this.viewFacade = new GUIViewFacade(stage, userController, postController);
+        
         initializeComponents();
     }
 
     private void initializeComponents() {
         // Initialize GUI components
-    	// Logo or image at the top
-        ImageView logoView = new ImageView(new Image("/image/DAH.png"));
+    	// Login logo at the top
+        ImageView logoView = new ImageView(new Image("/image/key.png"));
         logoView.setFitWidth(100);
         logoView.setPreserveRatio(true);
         
@@ -74,8 +78,18 @@ public class LoginView {
         loginButton = new Button("Login");
         loginButton.setOnAction(e -> handleLogin());
         
-        signupButton = new Button("Signup");
-        signupButton.setOnAction(e -> handleSignup());
+        signupHyperlink = new Hyperlink("New User? Signup here.");
+        signupHyperlink.setOnAction(e -> handleSignup());
+        
+        exit = new Button("Exit Application");
+        exit.setOnAction(e -> handleExit());
+        
+        Image exitImage = new Image("/image/exit.png");
+        ImageView exitImageView = new ImageView(exitImage);
+        exitImageView.setFitHeight(20);
+        exitImageView.setFitWidth(30);
+        exit.setGraphic(exitImageView);
+        exit.setText("");  // Remove text
 
         GridPane gridPane = new GridPane();
         gridPane.setVgap(10);
@@ -84,46 +98,56 @@ public class LoginView {
         gridPane.getColumnConstraints().addAll(col1, col2);
 
         gridPane.add(logoView, 1, 0, 2, 1);
-        gridPane.add(new Label("Username:"), 0, 1);
+        gridPane.add(new Label("Username"), 0, 1);
         gridPane.add(usernameField, 1, 1);
-        gridPane.add(new Label("Password:"), 0, 2);
+        gridPane.add(new Label("Password"), 0, 2);
         gridPane.add(passwordField, 1, 2);
-        gridPane.add(loginButton, 0, 3);
-        gridPane.add(signupButton, 1, 3);
+        gridPane.add(loginButton, 1, 3, 2, 1); // Spanning 2 columns
         
-        // Add these components to your gridPane:
+        // Add these components to the gridPane
         gridPane.add(visiblePasswordField, 1, 2);  // occupy the same grid cell
         gridPane.add(togglePasswordVisibility, 2, 2);
         
+        // Create layout for bottom of the screen
+        HBox bottomLayout = new HBox();
+        bottomLayout.setAlignment(Pos.BOTTOM_CENTER);
+        bottomLayout.setSpacing(20);
+        bottomLayout.setPadding(new Insets(0, 20, 20, 20)); // padding for top, right, bottom, left
+        bottomLayout.getChildren().addAll(exit, signupHyperlink);
 
-        stage.setScene(new Scene(gridPane, 350, 250));
+        gridPane.add(bottomLayout, 0, 5, 2, 1); // Spanning over two columns
+
+        stage.setScene(new Scene(gridPane, 400, 300));
         stage.setTitle("Login");
         stage.show();
     }
 
-    private void handleLogin() {
+    private void handleExit() {
+		viewFacade.showAlert(AlertType.INFORMATION, "Message", "See you soon!");
+		stage.close();
+	}
+
+	private void handleLogin() {
         // Get username and password from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
 
-        User user = userController.loginUser(username, password);
+        User user = viewFacade.loginUser(username, password);
         if (user != null) {
             // Successful login, switch to DashboardView
-            new DashboardView(user, postController, userController);
-            stage.close();
+            viewFacade.navigateToDashboard(user);
         } else {
             // Show error message
-            showError("Invalid username or password");
+            viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid username or password");
         }
     }
 
     private void handleSignup() {
         // Switch to SignupView
-        new SignupView(userController);
-        stage.close();
+        viewFacade.navigateToSignup();
     }
    
-    // Method to handle the visibility toggle:
+    // Method to handle the visibility toggle
     private void handleTogglePasswordVisibility() {
         if (passwordField.isVisible()) {
             // copy the password from the password field to the plain text field
@@ -136,15 +160,6 @@ public class LoginView {
             passwordField.setVisible(true);
             visiblePasswordField.setVisible(false);
         }
-    }
-
-    private void showError(String message) {
-        // Display error message to user using a JavaFX Alert or similar
-    	 Alert alert = new Alert(AlertType.ERROR);
-         alert.setTitle("Error");
-         alert.setHeaderText(null);
-         alert.setContentText(message);
-         alert.showAndWait();
     }
 }
 

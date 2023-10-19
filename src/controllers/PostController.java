@@ -6,6 +6,7 @@ import java.util.List;
 import database.DBManager;
 import database.PostDAO;
 import models.Post;
+import models.User;
 
 public class PostController {
 
@@ -18,8 +19,7 @@ public class PostController {
     // Add a new post
     public boolean addPost(Post post) {
         try {
-            // Set the next available post ID for the new post
-            //post.setPostId(getNextPostId());
+            
             postDAO.addPost(post);
             return true;
         } catch (SQLException e) {
@@ -32,9 +32,9 @@ public class PostController {
 
 
  // Delete a post by ID
-    public boolean deletePost(int postID) {
+    public boolean deletePost(Post post) {
         try {
-            postDAO.deletePost(postID);
+            postDAO.deletePost(post.getPostId());
             return true;
         } catch (SQLException e) {
             // Handle exception
@@ -51,26 +51,42 @@ public class PostController {
         }
         return null;
     }
+    
+    // Retrieve the top N posts by shares
+    public List<Post> getTopNPostsByShares(int n, User user) {
+        try {
+            if (user != null)
+            	return postDAO.getTopNPostsByShares(n, user);
+            else
+            	return postDAO.getTopNPostsByShares(n);
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return null;
+    }
 
     // Retrieve the top N posts by likes
-    public List<Post> getTopNPostsByLikes(int n) {
+    public List<Post> getTopNPostsByLikes(int n, User user) {
         try {
-            return postDAO.getTopNPostsByLikes(n);
+        	if (user != null)
+        		return postDAO.getTopNPostsByLikes(n, user);
+        	else 
+        		return postDAO.getTopNPostsByLikes(n);
         } catch (SQLException e) {
             // Handle exception
         }
         return null;
     }
     
-//    // Get the next available post ID
-//    public int getNextPostId() {
-//        try {
-//            return postDAO.getLastPostId() + 1;
-//        } catch (SQLException e) {
-//            // Handle exception
-//        }
-//        return 1; // default to 1 if no posts are found or an error occurs
-//    }
+    public List<Post> getPostsByUser(User user) {
+    	try {
+    		return postDAO.getPostsByUser(user);
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return null;
+        
+    }
 
     // Update an existing post
     public boolean updatePost(Post post) {
@@ -83,6 +99,28 @@ public class PostController {
         	
         }
         return false;
+    }
+    
+    public List<Post> getAllPosts() {
+    	try {
+    		return postDAO.getAllPosts();
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return null;
+        
+    }
+    
+    public boolean addBulkPosts(List<Post> posts) {
+        try {
+            for (Post post : posts) {
+                postDAO.addPost(post);
+            }
+            return true;
+        } catch (Exception e) {
+            System.err.println("Error adding bulk posts: " + e.getMessage());
+            return false;
+        }
     }
 
 }

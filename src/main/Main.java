@@ -18,7 +18,7 @@ public class Main extends Application {
     	UserController userController = new UserController(dbManager);
     	PostController postController = new PostController(dbManager);
          
-        // Launch the LoginView
+        // Launch the EntryView Animation
         new EntryView(primaryStage, userController, postController);
     }
     

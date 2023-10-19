@@ -6,52 +6,57 @@ import java.time.format.DateTimeFormatter;
 
 import controllers.PostController;
 import controllers.UserController;
-import database.DBManager;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Post;
 import models.User;
+import views.facade.GUIViewFacade;
 
 public class PostFormView {
 
     private Stage stage;
-    private PostController postController;
     private User user;
-    private TextField idField, contentField, authorField, likesField, sharesField;
+    private TextField contentField, likesField, sharesField;
     private DatePicker datePicker;
     private Button saveButton, cancelButton;
-
-    public PostFormView(PostController postController, User user, Post existingPost) {
-        System.out.println("Constructing with postController: " + postController);
-
-    	this.postController = postController;
-        this.user = user;
-        this.stage = new Stage();
-        initializeComponents(existingPost);
-    }
     
-    public PostFormView(PostController postController, User user) {
-        this(postController, user, null);
-    }
+    private GUIViewFacade viewFacade;
     
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy HH:mm");
 
-    private void initializeComponents(Post existingPost) {
-//        idField = new TextField();
-//        idField.setPromptText("Post ID");
-//        if (existingPost != null) idField.setText(String.valueOf(existingPost.getPostId()));
 
+    public PostFormView(Stage stage, User user, PostController postController, UserController userController, Post existingPost) {
+        this.user = user;
+        this.stage = stage;
+        
+        viewFacade = new GUIViewFacade(stage, userController, postController);
+        
+        initializeComponents(existingPost);
+    }
+    
+    public PostFormView(Stage stage, User user, PostController postController, UserController userController) {
+        this(stage, user, postController, userController, null);
+    }
+    
+    private void initializeComponents(Post existingPost) {
+    	
+    	ImageView logoView = new ImageView(new Image("/image/new-post.png"));
+        logoView.setFitWidth(100);
+        logoView.setPreserveRatio(true);
+        
         contentField = new TextField();
         contentField.setPromptText("Content");
         if (existingPost != null) contentField.setText(existingPost.getContent());
-
-//        authorField = new TextField();
-//        authorField.setPromptText("Author");
-//        if (existingPost != null) authorField.setText(existingPost.getAuthor());
 
         likesField = new TextField();
         likesField.setPromptText("Likes");
@@ -70,24 +75,56 @@ public class PostFormView {
         cancelButton = new Button("Cancel");
         cancelButton.setOnAction(e -> handleCancel());
 
-        VBox layout = new VBox(10);
-        layout.getChildren().addAll(contentField, likesField, sharesField, datePicker, saveButton, cancelButton);
-
-        stage.setScene(new Scene(layout, 300, 350));
+        VBox postLayout = new VBox(10);
+        postLayout.getChildren().addAll(new Label("Content"), contentField, 
+        		new Label("Likes"), likesField, 
+        		new Label("Shares"), sharesField, 
+        		new Label("Date Time"), datePicker, 
+        		saveButton, 
+        		cancelButton);
+        postLayout.setAlignment(Pos.CENTER_LEFT);
+        postLayout.setPadding(new Insets(20, 20, 30, 20));
+        
+        VBox mainLayout = new VBox(10);
+        mainLayout.getChildren().addAll(logoView, postLayout, saveButton, cancelButton);
+        mainLayout.setAlignment(Pos.CENTER);
+        mainLayout.setPadding(new Insets(20, 20, 30, 20));
+        
+        stage.setScene(new Scene(mainLayout, 400, 500));
         stage.setTitle(existingPost == null ? "Add Post" : "Edit Post");
         stage.show();
     }
 
     private void handleSave(Post existingPost) {
         try {
-        	System.out.println("PostFormView - User's ID: " + user.getUserId());
+        	// System.out.println("PostFormView - User's ID: " + user.getUserId());
 
-            //int postId = existingPost == null ? postController.getNextPostId() : Integer.parseInt(idField.getText());
             String content = contentField.getText();
-            String author = user.getUsername(); // Set the current user as the author
-            int likes = Integer.parseInt(likesField.getText());
-            int shares = Integer.parseInt(sharesField.getText()); 
+            
+            if (content == null || content.trim().isEmpty()) {
+                viewFacade.showAlert(AlertType.ERROR, "Error", "Content cannot be empty!");
+                return;
+            }
+            
+            String author = user.getUsername(); // Set the current user as the author of the post
+            
+            int likes;
+            int shares;
+
+            try {
+                likes = Integer.parseInt(likesField.getText());
+                shares = Integer.parseInt(sharesField.getText());
+            } catch (NumberFormatException nfe) {
+            	viewFacade.showAlert(AlertType.ERROR, "Error", "Please enter valid numbers for Likes and Shares!");
+                return;
+            }
+            
             LocalDate date = datePicker.getValue();
+            if (date == null) {
+            	viewFacade.showAlert(AlertType.ERROR, "Error", "Please select a valid date!");
+                return;
+            }
+            
             LocalDateTime dateTime = date.atStartOfDay();  // Convert LocalDate to LocalDateTime (at midnight)
             
             // Convert LocalDate to the expected date-time string format
@@ -95,38 +132,35 @@ public class PostFormView {
 
             if (existingPost == null) {
                 // For new posts, we don't need to set the PostID as it will be auto-incremented
-                Post post = new Post(content, author, likes, shares, formattedDateTime, user.getUserId());
-                postController.addPost(post);
+//                Post post = new Post(content, author, likes, shares, formattedDateTime, user.getUserId());
+//                postController.addPost(post);
+//                new DashboardView(stage, user, postController, userController); // Return to the Dashboard
+                	
+                viewFacade.addPost(content, author, likes, shares, formattedDateTime, user);
+                viewFacade.showAlert(AlertType.INFORMATION, "Success", "Post created successfully!");
+                viewFacade.navigateToDashboard(user); // Return to the Dashboard
+                
             } else {
                 // For existing posts, we keep the PostID and update other fields
-                int postId = Integer.parseInt(idField.getText());
-                Post post = new Post(postId, content, author, likes, shares, formattedDateTime, user.getUserId());
-                postController.updatePost(post);
-            }
-
-//            if (existingPost == null) {
-//                postController.addPost(post);
-//            } else {
+                int postId = existingPost.getPostId();
+//                Post post = new Post(postId, content, author, likes, shares, formattedDateTime, user.getUserId());
 //                postController.updatePost(post);
-//            }
-
-            new DashboardView(user, postController, new UserController(new DBManager())); // Return to the Dashboard
-            stage.close();
+//                new PostListView(stage, user, postController, userController);
+                viewFacade.editPost(postId, content, author, likes, shares, formattedDateTime, user);
+                viewFacade.showAlert(AlertType.INFORMATION, "Success", "Post updated successfully!");
+                viewFacade.navigateToMyPosts(user);
+            }
+            
         } catch (Exception e) {
-            showError("Error saving the post. Please ensure all fields are correctly filled.");
-            e.printStackTrace(); 
+            //showError("Error saving the post. Please ensure all fields are correctly filled.");
+            viewFacade.showAlert(AlertType.ERROR, "Error", "Error saving the post. Please ensure all fields are correctly filled.");
         }
     }
 
 
-
     private void handleCancel() {
-        new DashboardView(user, postController, new UserController(new DBManager())); // Return to the Dashboard
-        stage.close();
-    }
-
-    private void showError(String message) {
-        // Display error message to user using a JavaFX Alert or similar
+        // new DashboardView(stage, user, postController, new UserController(new DBManager())); // Return to the Dashboard
+    	viewFacade.navigateToDashboard(user); 	// Return to the Dashboard
     }
 }
 

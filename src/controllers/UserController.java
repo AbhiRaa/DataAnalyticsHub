@@ -71,6 +71,51 @@ public class UserController {
         return false;
     }
 
+    public boolean updateUserPassword(User user, String newPassword) {
+        try {
+        	// Check if a new password is provided
+            if (newPassword != null && !newPassword.isEmpty()) {
+                // Generate a new salt
+                String newSalt = PasswordUtils.generateSalt();
+                // Hash the new password with the new salt
+                String newHashedPassword = PasswordUtils.hashPassword(newPassword, newSalt);
+                
+                // Update the user object
+                user.setSalt(newSalt);
+                user.setHashedPassword(newHashedPassword);
+                
+                
+            }
+            return userDAO.updateUserPassword(user, user.getHashedPassword(), user.getSalt());
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    
+    public boolean usernameExists(String username) {
+        try {
+            User user = userDAO.getUserByUsername(username);
+            return user != null;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public String getHashedPassword(String username) {
+        try {
+            User user = userDAO.getUserByUsername(username);
+            if (user != null) {
+                return user.getHashedPassword();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
     // Upgrade to VIP status
     public boolean upgradeToVIP(User user) {
         try {
@@ -81,10 +126,16 @@ public class UserController {
         }
         return false;
     }
-
-//    public int getNextUserId() throws SQLException {
-//        return userDAO.getLastUserId() + 1;
-//    }
-
+    
+    // Degrade VIP status
+    public boolean degradeToStandard(User user) {
+        try {
+            userDAO.degradeToStandard(user);
+            return true;
+        } catch (SQLException e) {
+            // Handle exception
+        }
+        return false;
+    }
 }
 
