@@ -1,127 +1,63 @@
 package controllers;
 
-import java.sql.SQLException;
 import java.util.List;
 
 import database.DBManager;
-import database.PostDAO;
 import models.Post;
 import models.User;
+import services.PostService;
+import services.factory.ServiceFactory;
+import services.factory.ServiceFactoryImpl;
 
 public class PostController {
-
-    private PostDAO postDAO;
+	
+	// Dependency Injection
+	private final PostService postService;
 
     public PostController(DBManager dbManager) {
-        this.postDAO = new PostDAO(dbManager);
+		 ServiceFactory serviceFactory = new ServiceFactoryImpl(dbManager);
+		 this.postService = serviceFactory.createPostService();
     }
 
     // Add a new post
     public boolean addPost(Post post) {
-        try {
-            
-            postDAO.addPost(post);
-            return true;
-        } catch (SQLException e) {
-            // Handle exception, e.g., log it or inform the user
-            e.printStackTrace();
-
-        }
-        return false;
+    	return postService.addPost(post);
     }
 
-
- // Delete a post by ID
+    // Delete a post by ID
     public boolean deletePost(Post post) {
-        try {
-            postDAO.deletePost(post.getPostId());
-            return true;
-        } catch (SQLException e) {
-            // Handle exception
-        }
-        return false;
+    	return postService.deletePost(post);
     }
 
- // Retrieve a post by its ID
+    // Retrieve a post by its ID
     public Post getPostByID(int postID) {
-        try {
-            return postDAO.getPostByID(postID);
-        } catch (SQLException e) {
-            // Handle exception
-        }
-        return null;
+    	return postService.getPostByID(postID);
     }
     
     // Retrieve the top N posts by shares
     public List<Post> getTopNPostsByShares(int n, User user) {
-        try {
-            if (user != null)
-            	return postDAO.getTopNPostsByShares(n, user);
-            else
-            	return postDAO.getTopNPostsByShares(n);
-        } catch (SQLException e) {
-            // Handle exception
-        }
-        return null;
+    	return postService.getTopNPostsByShares(n, user);
     }
 
     // Retrieve the top N posts by likes
     public List<Post> getTopNPostsByLikes(int n, User user) {
-        try {
-        	if (user != null)
-        		return postDAO.getTopNPostsByLikes(n, user);
-        	else 
-        		return postDAO.getTopNPostsByLikes(n);
-        } catch (SQLException e) {
-            // Handle exception
-        }
-        return null;
+    	return postService.getTopNPostsByLikes(n, user);
     }
     
     public List<Post> getPostsByUser(User user) {
-    	try {
-    		return postDAO.getPostsByUser(user);
-        } catch (SQLException e) {
-            // Handle exception
-        }
-        return null;
-        
+    	return postService.getPostsByUser(user);
     }
 
     // Update an existing post
     public boolean updatePost(Post post) {
-        try {
-            postDAO.updatePost(post);
-            return true;
-        } catch (SQLException e) {
-            // Handle exception
-            e.printStackTrace();
-        	
-        }
-        return false;
+    	return postService.updatePost(post);
     }
     
     public List<Post> getAllPosts() {
-    	try {
-    		return postDAO.getAllPosts();
-        } catch (SQLException e) {
-            // Handle exception
-        }
-        return null;
-        
+    	return postService.getAllPosts();
     }
     
     public boolean addBulkPosts(List<Post> posts) {
-        try {
-            for (Post post : posts) {
-                postDAO.addPost(post);
-            }
-            return true;
-        } catch (Exception e) {
-            System.err.println("Error adding bulk posts: " + e.getMessage());
-            return false;
-        }
+    	return postService.addBulkPosts(posts);
     }
-
 }
-
