@@ -50,7 +50,7 @@ public class PostFormView {
     
     private void initializeComponents(Post existingPost) {
     	
-    	ImageView logoView = new ImageView(new Image("/image/new-post.png"));
+    	ImageView logoView = new ImageView(new Image("/image/post.png"));
         logoView.setFitWidth(100);
         logoView.setPreserveRatio(true);
         
@@ -95,14 +95,13 @@ public class PostFormView {
         mainLayout.setAlignment(Pos.CENTER);
         mainLayout.setPadding(new Insets(20, 20, 30, 20));
         
-        stage.setScene(new Scene(mainLayout, 400, 500));
+        stage.setScene(new Scene(mainLayout, 400, 550));
         stage.setTitle(existingPost == null ? "Add Post" : "Edit Post");
         stage.show();
     }
 
     private void handleSave(Post existingPost) {
         try {
-        	// System.out.println("PostFormView - User's ID: " + user.getUserId());
 
             String content = contentField.getText();
             
@@ -137,10 +136,6 @@ public class PostFormView {
 
             if (existingPost == null) {
                 // For new posts, we don't need to set the PostID as it will be auto-incremented
-//                Post post = new Post(content, author, likes, shares, formattedDateTime, user.getUserId());
-//                postController.addPost(post);
-//                new DashboardView(stage, user, postController, userController); // Return to the Dashboard
-                	
                 viewFacade.addPost(content, author, likes, shares, formattedDateTime, user);
                 viewFacade.showAlert(AlertType.INFORMATION, "Success", "Post created successfully!");
                 viewFacade.navigateToDashboard(user); // Return to the Dashboard
@@ -148,16 +143,12 @@ public class PostFormView {
             } else {
                 // For existing posts, we keep the PostID and update other fields
                 int postId = existingPost.getPostId();
-//                Post post = new Post(postId, content, author, likes, shares, formattedDateTime, user.getUserId());
-//                postController.updatePost(post);
-//                new PostListView(stage, user, postController, userController);
                 viewFacade.editPost(postId, content, author, likes, shares, formattedDateTime, user);
                 viewFacade.showAlert(AlertType.INFORMATION, "Success", "Post updated successfully!");
                 viewFacade.navigateToMyPosts(user);
             }
             
         } catch (Exception e) {
-            //showError("Error saving the post. Please ensure all fields are correctly filled.");
             viewFacade.showAlert(AlertType.ERROR, "Error", "Error saving the post. Please ensure all fields are correctly filled.");
         }
     }

@@ -132,34 +132,27 @@ public class DashboardView {
 
 	private void handleAddPost() {
         // Switch to the PostFormView to allow the user to add a new post
-    	// System.out.println("DashboardView - User's ID: " + user.getUserId());
-
-        // new PostFormView(stage, user, postController, userController);
         viewFacade.navigateToAddPost(user);
     }
 
     private void handleViewPosts() {
         // Display a list of the user's posts, with options to view, edit, or delete each post
-        // new PostListView(stage, user, postController, userController);
         viewFacade.navigateToMyPosts(user);
     }
 
     private void handleEditProfile() {
         // Switch to ProfileView to allow the user to edit their profile details
-        // new ProfileView(stage, user, userController);
         viewFacade.navigateToEditUserProfile(user);
     }
 
     private void handleLogout() {
         // Logout the user and return to the LoginView
-        // new LoginView(stage, userController, postController);
     	viewFacade.showAlert(AlertType.INFORMATION, "Logout", user.getUsername() + " logged-out successfully!");
         viewFacade.navigateToLogin();
     }
 
     private void handleUpgradeToVIP() {
     	// Offer the user the option to upgrade to VIP status            
-        // new UpgradeToVIPView(stage, user, userController, postController);
         viewFacade.navigateToUpgradeToVIP(user);
            
     }
@@ -175,12 +168,10 @@ public class DashboardView {
 	}
     
     private void handleVisualization() {
-		// new PieChartView(stage, user, userController, postController);
     	viewFacade.navigateToVisualization(user);
 	}
     
     private void handleImports() {
-		// new BulkImportView(stage, user, postController, userController);
     	viewFacade.navigateToBulkImports(user);
     }
 }
