@@ -21,34 +21,38 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.PostFormViewInterface;
 
-public class PostFormView {
+public class PostFormView extends BaseView implements PostFormViewInterface {
 
     private Stage stage;
     private User user;
+    private Post existingPost;
     private TextField contentField, likesField, sharesField;
     private DatePicker datePicker;
     private Button saveButton, cancelButton;
+    private VBox mainLayout;
     
     private GUIViewFacade viewFacade;
     
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy HH:mm");
 
-
     public PostFormView(Stage stage, User user, PostController postController, UserController userController, Post existingPost) {
         this.user = user;
         this.stage = stage;
-        
+        this.existingPost = existingPost;
         viewFacade = new GUIViewFacade(stage, userController, postController);
         
-        initializeComponents(existingPost);
+        initializeComponents();
+        show();
     }
     
     public PostFormView(Stage stage, User user, PostController postController, UserController userController) {
         this(stage, user, postController, userController, null);
     }
-    
-    private void initializeComponents(Post existingPost) {
+    	
+    @Override
+    protected void initializeComponents() {
     	
     	ImageView logoView = new ImageView(new Image("/image/post.png"));
         logoView.setFitWidth(100);
@@ -90,17 +94,22 @@ public class PostFormView {
         postLayout.setAlignment(Pos.CENTER_LEFT);
         postLayout.setPadding(new Insets(20, 20, 30, 20));
         
-        VBox mainLayout = new VBox(10);
+        mainLayout = new VBox(10);
         mainLayout.getChildren().addAll(logoView, postLayout, saveButton, cancelButton);
         mainLayout.setAlignment(Pos.CENTER);
         mainLayout.setPadding(new Insets(20, 20, 30, 20));
         
-        stage.setScene(new Scene(mainLayout, 400, 550));
+    }
+    
+    @Override
+    protected void show() {
+    	stage.setScene(new Scene(mainLayout, 400, 550));
         stage.setTitle(existingPost == null ? "Add Post" : "Edit Post");
         stage.show();
     }
-
-    private void handleSave(Post existingPost) {
+    
+    @Override
+    public void handleSave(Post existingPost) {
         try {
 
             String content = contentField.getText();

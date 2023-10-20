@@ -15,19 +15,24 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import views.facade.GUIViewFacade;
+import views.interfaces.EntryViewInterface;
 
-public class EntryView {
+public class EntryView extends BaseView implements EntryViewInterface {
 
 	private Stage stage;
+	private BorderPane root;
+	
 	private GUIViewFacade viewFacade;
 
     public EntryView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+	protected void initializeComponents() {
         Label welcomeLabel = new Label("Welcome to Data Analytics Hub");
         welcomeLabel.setFont(new Font("Arial", 24));  // You can adjust the font as you like
         welcomeLabel.setStyle("-fx-text-fill: #2E8B57;");  // Color for the label
@@ -39,25 +44,31 @@ public class EntryView {
         VBox vbox = new VBox(10, welcomeLabel, loadingBar);
         vbox.setAlignment(Pos.CENTER);  // Center the VBox contents
 
-        BorderPane root = new BorderPane();
+        root = new BorderPane();
         root.setCenter(vbox);  // Center the VBox in the BorderPane
         root.setStyle("-fx-background-color: #F5F5F5;");  // Background color for the view
         
-        Scene scene = new Scene(root, 400, 300);
-        stage.setScene(scene);
-        stage.setTitle("Welcome");
-        stage.show();
-
         // Animation for the loading bar
         Timeline timeline = new Timeline(
             new KeyFrame(Duration.seconds(2), new KeyValue(loadingBar.progressProperty(), 1))
         );
 
         // After animation completes, navigate to the login page
-        timeline.setOnFinished(e -> {
-            viewFacade.navigateToLogin();
-        });
+        timeline.setOnFinished(e -> handleCompletion());
 
         timeline.play();
+    }
+    
+    @Override
+    protected void show() { 
+    	Scene scene = new Scene(root, 400, 300);
+        stage.setScene(scene);
+        stage.setTitle("Welcome");
+        stage.show();
+    }
+    
+    @Override
+    public void handleCompletion() {
+    	viewFacade.navigateToLogin();
     }
 }

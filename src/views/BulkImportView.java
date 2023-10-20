@@ -19,14 +19,17 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.BulkImportViewInterface;
 
-public class BulkImportView {
+public class BulkImportView extends BaseView implements BulkImportViewInterface {
 
     private Stage stage;
     private User user;
     private Button importButton, backButton, saveButton;
     private ListView<String> postListView;
     private List<Post> validPosts;
+    private VBox mainLayout;
+    
     private GUIViewFacade viewFacade;
 
     public BulkImportView(Stage stage, User user, PostController postController, UserController userController) {
@@ -34,9 +37,11 @@ public class BulkImportView {
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
         
         postListView = new ListView<>();
         
@@ -69,17 +74,22 @@ public class BulkImportView {
         chooserLayout.setPadding(new Insets(20, 20, 30, 20));
        
 
-        VBox mainLayout = new VBox(10);
+        mainLayout = new VBox(10);
         mainLayout.getChildren().addAll(chooserLayout, postListView, saveButton, backButton);
         mainLayout.setAlignment(Pos.CENTER);
         mainLayout.setPadding(new Insets(20, 20, 30, 20));
 
-        stage.setScene(new Scene(mainLayout, 500, 400));
+    }
+    
+    @Override
+    protected void show() {
+    	stage.setScene(new Scene(mainLayout, 500, 400));
         stage.setTitle("Bulk Import");
         stage.show();
     }
     
-    private void previewImportedPosts(File selectedFile) {
+    @Override
+    public void previewImportedPosts(File selectedFile) {
         try {
             validPosts = viewFacade.previewImportedPosts(selectedFile, user);
             postListView.getItems().clear();
@@ -92,11 +102,13 @@ public class BulkImportView {
         }
     }
     
-    private String formatPostForDisplay(Post post) {
+    @Override
+    public String formatPostForDisplay(Post post) {
         return String.format("Content: %s | Likes: %d | Shares: %d", post.getContent(), post.getLikes(), post.getShares());
     }
-
-    private void handleSave() {
+    
+    @Override
+    public void handleSave() {
         boolean success = viewFacade.addBulkPosts(validPosts);
         if (success) {
         	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Posts imported successfully!");

@@ -16,26 +16,28 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.UpgradeToVIPViewInterface;
 
-public class UpgradeToVIPView {
+public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterface {
 
     private Stage stage;
-//    private UserController userController;
-//    private PostController postController;
     private User user;
     private Button upgradeButton, backButton;
+    private VBox layout;
+    
     private GUIViewFacade viewFacade;
 
     public UpgradeToVIPView(Stage stage, User user, UserController userController, PostController postController) {
-//        this.userController = userController;
-//        this.postController = postController;
         this.user = user;
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
+        
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
     	
     	ImageView logoView = new ImageView(new Image("/image/jewelry.png"));
         logoView.setFitWidth(100);
@@ -51,21 +53,27 @@ public class UpgradeToVIPView {
         backButton = new Button("Back");
         backButton.setOnAction(e -> handleBack());
 
-        VBox layout = new VBox(10);
+        layout = new VBox(10);
         layout.getChildren().addAll(logoView, vipLabel, upgradeButton, backButton);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(20, 20, 30, 20));
         
-        stage.setScene(new Scene(layout, 600, 300));
+    }
+    
+    @Override
+    protected void show() {
+    	stage.setScene(new Scene(layout, 600, 300));
         stage.setTitle("Upgrade to VIP");
         stage.show();
     }
-
-    private void handleBack() {
+    
+    @Override
+    public void handleBack() {
     	viewFacade.navigateToDashboard(user);
 	}
-
-	private void handleUpgrade() {
+    
+    @Override
+	public void handleUpgrade() {
         if (viewFacade.upgradeToVIP(user)) {
         	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Successfully upgraded to VIP. Please log out and log in again to access VIP functionalities.");
         	viewFacade.navigateToDashboard(user);
@@ -73,6 +81,4 @@ public class UpgradeToVIPView {
         	viewFacade.showAlert(AlertType.ERROR, "Error", "An error occurred during the upgrade. Please try again.");
         }
     }
-    
 }
-

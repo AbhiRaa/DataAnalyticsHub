@@ -20,8 +20,9 @@ import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.DashboardViewInterface;
 
-public class DashboardView {
+public class DashboardView extends BaseView implements DashboardViewInterface {
 
     private Stage stage;
     private User user;
@@ -29,6 +30,7 @@ public class DashboardView {
     private Button addPostButton, viewPostsButton, editProfileButton, logoutButton, dataVisualization, importPosts;
     private Hyperlink vipUpgradeLink;
     private Hyperlink cancelVIPSubscriptionLink = null;
+    private BorderPane mainLayout;
     
     private GUIViewFacade viewFacade;
     
@@ -39,9 +41,11 @@ public class DashboardView {
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
         
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
     	
         welcomeMessage = new Label("Welcome, " + user.getFirstName() + " " + user.getLastName() + "!");
         welcomeMessage.setTextFill(Color.GREEN);
@@ -117,7 +121,7 @@ public class DashboardView {
         bottomRightLayout.setAlignment(Pos.BOTTOM_RIGHT);
         bottomRightLayout.setPadding(new Insets(0, 20, 20, 0));  // Padding on right and bottom
 
-        BorderPane mainLayout = new BorderPane();
+        mainLayout = new BorderPane();
         mainLayout.setTop(welcomeMessage);
         mainLayout.setRight(topRightLayout);
         mainLayout.setCenter(centerLayout);
@@ -125,39 +129,49 @@ public class DashboardView {
         BorderPane.setAlignment(welcomeMessage, Pos.TOP_CENTER);
         BorderPane.setMargin(welcomeMessage, new Insets(20, 0, 0, 0));
 
+    }
+    
+    @Override
+    protected void show() {
         stage.setScene(new Scene(mainLayout, 600, 400));
         stage.setTitle("Dashboard");
         stage.show();
     }
-
-	private void handleAddPost() {
+    
+    @Override
+	public void handleAddPost() {
         // Switch to the PostFormView to allow the user to add a new post
         viewFacade.navigateToAddPost(user);
     }
-
-    private void handleViewPosts() {
+    
+    @Override
+    public void handleViewPosts() {
         // Display a list of the user's posts, with options to view, edit, or delete each post
         viewFacade.navigateToMyPosts(user);
     }
-
-    private void handleEditProfile() {
+    
+    @Override
+    public void handleEditProfile() {
         // Switch to ProfileView to allow the user to edit their profile details
         viewFacade.navigateToEditUserProfile(user);
     }
-
-    private void handleLogout() {
+    
+    @Override
+    public void handleLogout() {
         // Logout the user and return to the LoginView
     	viewFacade.showAlert(AlertType.INFORMATION, "Logout", user.getUsername() + " logged-out successfully!");
         viewFacade.navigateToLogin();
     }
-
-    private void handleUpgradeToVIP() {
+    
+    @Override
+    public void handleUpgradeToVIP() {
     	// Offer the user the option to upgrade to VIP status            
         viewFacade.navigateToUpgradeToVIP(user);
            
     }
     
-    private void handleDegrade() {
+    @Override
+    public void handleDegrade() {
 		if (viewFacade.degradeToStandard(user)) {
 			viewFacade.showAlert(AlertType.INFORMATION, "Message", "Successfully cancelled VIP subscription.");
 			user.setVIP(false);
@@ -167,11 +181,13 @@ public class DashboardView {
 		}
 	}
     
-    private void handleVisualization() {
+    @Override
+    public void handleVisualization() {
     	viewFacade.navigateToVisualization(user);
 	}
     
-    private void handleImports() {
+    @Override
+    public void handleImports() {
     	viewFacade.navigateToBulkImports(user);
     }
 }

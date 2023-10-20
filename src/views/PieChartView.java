@@ -20,13 +20,16 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.PieChartViewInterface;
 
-public class PieChartView {
+public class PieChartView extends BaseView implements PieChartViewInterface {
 
     private Stage stage;
     private User user;
     private PieChart sharesPieChart;
     private Button backButton, myPostsButton, allPostsButton;
+    private VBox layout;
+    
     private GUIViewFacade viewFacade;
 
     public PieChartView(Stage stage, User user, UserController userController, PostController postController) {
@@ -34,9 +37,11 @@ public class PieChartView {
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
 
         Label titleLabel = new Label("Posts Shares Distribution");
         titleLabel.setTextFill(Color.GREEN);
@@ -62,17 +67,22 @@ public class PieChartView {
             viewFacade.navigateToDashboard(user);
         });
 
-        VBox layout = new VBox(10, titleLabel, buttonBox, sharesPieChart, backButton);
+        layout = new VBox(10, titleLabel, buttonBox, sharesPieChart, backButton);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(20, 20, 30, 20));
         
-        Scene scene = new Scene(layout, 700, 700);
+    }
+    
+    @Override
+    protected void show() {
+    	Scene scene = new Scene(layout, 700, 700);
         stage.setScene(scene);
         stage.setTitle("Posts Shares Distribution");
         stage.show();
     }
     
-    private void updatePieChartData(boolean onlyCurrentUser) {
+    @Override
+    public void updatePieChartData(boolean onlyCurrentUser) {
         List<Post> posts;
         if (onlyCurrentUser) {
             posts = viewFacade.getPostsByUser(user);

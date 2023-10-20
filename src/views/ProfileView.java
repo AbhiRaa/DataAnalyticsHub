@@ -16,14 +16,16 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.ProfileViewInterface;
 
-public class ProfileView {
+public class ProfileView extends BaseView implements ProfileViewInterface {
 
     private Stage stage;
     private User user;
     private TextField usernameField, firstNameField, lastNameField;
     private PasswordField passwordField, confirmPasswordField;
     private Button saveButton, backButton;
+    private VBox mainLayout;
     
     private GUIViewFacade viewFacade;
 
@@ -31,10 +33,13 @@ public class ProfileView {
         this.user = user;
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
+        
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
     	
     	ImageView logoView = new ImageView(new Image("/image/resume.png"));
         logoView.setFitWidth(100);
@@ -70,17 +75,22 @@ public class ProfileView {
         userlayout.setAlignment(Pos.CENTER_LEFT);
         userlayout.setPadding(new Insets(20, 20, 30, 20));
 
-        VBox mainLayout = new VBox(10);
+        mainLayout = new VBox(10);
         mainLayout.getChildren().addAll(logoView, userlayout, saveButton, backButton);
         mainLayout.setAlignment(Pos.CENTER);
         mainLayout.setPadding(new Insets(20, 20, 30, 20));
 
-        stage.setScene(new Scene(mainLayout, 400, 600));
+    }
+    
+    @Override
+    protected void show() {
+    	stage.setScene(new Scene(mainLayout, 400, 600));
         stage.setTitle("Edit Profile");
         stage.show();
     }
-
-    private void handleSave() {
+    
+    @Override
+    public void handleSave() {
     	try {
     		String username = usernameField.getText();
             String firstName = firstNameField.getText();
@@ -138,9 +148,9 @@ public class ProfileView {
             viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
     	}
     }
-
-
-    private void handleBack() {
+    
+    @Override
+    public void handleBack() {
     	viewFacade.navigateToDashboard(user);
     }
 }

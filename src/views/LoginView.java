@@ -19,8 +19,9 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.LoginViewInterface;
 
-public class LoginView {
+public class LoginView extends BaseView implements LoginViewInterface {
 
     private Stage stage;
     private TextField usernameField;
@@ -29,6 +30,7 @@ public class LoginView {
     private Hyperlink signupHyperlink;
     private TextField visiblePasswordField;
     private ImageView togglePasswordVisibility;
+    private GridPane gridPane;
     
     private GUIViewFacade viewFacade;
 
@@ -37,9 +39,11 @@ public class LoginView {
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
         
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
         // Initialize GUI components
     	// Login logo at the top
         ImageView logoView = new ImageView(new Image("/image/key.png"));
@@ -91,7 +95,7 @@ public class LoginView {
         exit.setGraphic(exitImageView);
         exit.setText("");  // Remove text
 
-        GridPane gridPane = new GridPane();
+        gridPane = new GridPane();
         gridPane.setVgap(10);
         gridPane.setHgap(10);
         gridPane.setPadding(new Insets(20, 20, 20, 20));
@@ -117,17 +121,23 @@ public class LoginView {
 
         gridPane.add(bottomLayout, 0, 5, 2, 1); // Spanning over two columns
 
-        stage.setScene(new Scene(gridPane, 400, 300));
+    }
+    
+    @Override
+    protected void show() { 
+    	stage.setScene(new Scene(gridPane, 400, 300));
         stage.setTitle("Login");
         stage.show();
     }
-
-    private void handleExit() {
+    
+    @Override
+    public void handleExit() {
 		viewFacade.showAlert(AlertType.INFORMATION, "Message", "See you soon!");
 		stage.close();
 	}
-
-	private void handleLogin() {
+    
+    @Override
+	public void handleLogin() {
         // Get username and password from fields
         String username = usernameField.getText();
         String password = passwordField.getText();
@@ -141,14 +151,16 @@ public class LoginView {
             viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid username or password");
         }
     }
-
-    private void handleSignup() {
+    
+    @Override
+    public void handleSignup() {
         // Switch to SignupView
         viewFacade.navigateToSignup();
     }
-   
+    
+    @Override
     // Method to handle the visibility toggle
-    private void handleTogglePasswordVisibility() {
+    public void handleTogglePasswordVisibility() {
         if (passwordField.isVisible()) {
             // copy the password from the password field to the plain text field
             visiblePasswordField.setText(passwordField.getText());

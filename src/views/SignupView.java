@@ -16,14 +16,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import views.facade.GUIViewFacade;
+import views.interfaces.SignupViewInterface;
 
-public class SignupView {
+public class SignupView extends BaseView implements SignupViewInterface {
 
     private Stage stage;
     private TextField usernameField, firstNameField, lastNameField;
     private PasswordField passwordField, confirmPasswordField;
     private Button signupButton;
     private Hyperlink backButton;
+    private VBox layout;
     
     private GUIViewFacade viewFacade;
 
@@ -32,9 +34,11 @@ public class SignupView {
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
 
         initializeComponents();
+        show();
     }
-
-    private void initializeComponents() {
+    
+    @Override
+    protected void initializeComponents() {
     	// Initialize GUI components with color styling
     	// Signup logo at the top
         ImageView logoView = new ImageView(new Image("/image/user.png"));
@@ -57,27 +61,34 @@ public class SignupView {
         backButton = new Hyperlink("Already a user? Login here.");
         backButton.setOnAction(e -> handleBack());
 
-        VBox layout = new VBox(10, logoView, usernameField, nameBox, passwordField, confirmPasswordField, signupButton, backButton);
+        layout = new VBox(10, logoView, usernameField, nameBox, passwordField, confirmPasswordField, signupButton, backButton);
         layout.setAlignment(Pos.CENTER);
         layout.setPadding(new Insets(20, 20, 30, 20));
 
-        stage.setScene(new Scene(layout, 350, 400));
+    }
+    
+    @Override
+    protected void show() {
+    	stage.setScene(new Scene(layout, 350, 400));
         stage.setTitle("Signup");
         stage.show();
     }
     
-    private TextField createStyledTextField(String promptText) {
+    @Override
+    public TextField createStyledTextField(String promptText) {
         TextField textField = new TextField();
         textField.setPromptText(promptText);
         return textField;
     }
-
-    private TextField createStyledTextField(String promptText, PasswordField passwordField) {
+    
+    @Override
+    public TextField createStyledTextField(String promptText, PasswordField passwordField) {
         passwordField.setPromptText(promptText);
         return passwordField;
     }
     
-    private void handleSignup() {
+    @Override
+    public void handleSignup() {
         // Get details from fields
     	try {
             String username = usernameField.getText();
@@ -113,10 +124,10 @@ public class SignupView {
             viewFacade.showAlert(AlertType.ERROR, "Error", "All fields are required!");
         }
     }
-
-    private void handleBack() {
+    
+    @Override
+    public void handleBack() {
         // Switch back to LoginView
         viewFacade.navigateToLogin();
     }
 }
-

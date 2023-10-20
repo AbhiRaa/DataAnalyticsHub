@@ -24,8 +24,9 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.interfaces.PostListViewInterface;
 
-public class PostListView {
+public class PostListView extends BaseView implements PostListViewInterface {
 
     private Stage stage;
     private User user;
@@ -34,17 +35,22 @@ public class PostListView {
     private Button backButton, editButton, deleteButton, exportButton, retrieveButton, clearTableButton, resetButton, topPostsButton;
     private TextField topNInput, postIdInput;
     private ComboBox<String> sortByDropdown, filterByDropdown;
+    private VBox layout;
+    
     private GUIViewFacade viewFacade;
 
     public PostListView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
+        
         initializeComponents();
+        show();
     }
 
     @SuppressWarnings("unchecked")
-	private void initializeComponents() {
+    @Override
+	protected void initializeComponents() {
     	postsData = FXCollections.observableArrayList(viewFacade.getPostsByUser(user));
 		 
 		postsTable = new TableView<>();
@@ -69,12 +75,6 @@ public class PostListView {
 		TableColumn<Post, String> dateCol = new TableColumn<>("Date");
 		dateCol.setCellValueFactory(new PropertyValueFactory<>("dateTime"));
 		 
-	//		 TableColumn<Post, LocalDateTime> createdDateCol = new TableColumn<>("Created Date");
-	//		 createdDateCol.setCellValueFactory(new PropertyValueFactory<>("createdDate"));
-	//		 
-	//		 TableColumn<Post, LocalDateTime> UpdatedOnCol = new TableColumn<>("Updated On");
-	//		 UpdatedOnCol.setCellValueFactory(new PropertyValueFactory<>("updatedOn"));
-		
 		postsTable.getColumns().addAll(idCol, contentCol, authorCol, likesCol, sharesCol, dateCol);
 
 		postsTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
@@ -164,19 +164,25 @@ public class PostListView {
 	    navigationActions.setPadding(new Insets(10, 0, 10, 0));
 
 	    // Create the main layout and add components
-	    VBox layout = new VBox(10, postsTable, postIDControls, topNControls, postActions, navigationActions);
+	    layout = new VBox(10, postsTable, postIDControls, topNControls, postActions, navigationActions);
 	    layout.setPadding(new Insets(20));  // Add padding to the main layout
 		
-		stage.setScene(new Scene(layout, 800, 600));
+    }
+    
+    @Override
+    protected void show() { 
+    	stage.setScene(new Scene(layout, 800, 600));
 		stage.setTitle("My Posts");
 		stage.show();
     }
-
-    private void handleBack() {
+    
+    @Override
+    public void handleBack() {
         viewFacade.navigateToDashboard(user);
     }
     
-    private void handleRetrievePostById() {
+    @Override
+    public void handleRetrievePostById() {
     	try {
             Post post = viewFacade.getPostByID(Integer.parseInt(postIdInput.getText()));
             if (post != null) {
@@ -190,18 +196,21 @@ public class PostListView {
         	viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid Post ID format!");
         }
     }
-
-    private void handleEditPost(Post selectedPost) {
+    
+    @Override
+    public void handleEditPost(Post selectedPost) {
         viewFacade.navigateToEditPost(user, selectedPost);
     }
-
-    private void handleDeletePost(Post selectedPost) {
+    
+    @Override
+    public void handleDeletePost(Post selectedPost) {
     	viewFacade.deletePost(selectedPost);
         postsData.remove(selectedPost);  // Refresh the table
 
     }
     
-    private void handleTopPosts() {
+    @Override
+    public void handleTopPosts() {
         int n;
         String sortBy = sortByDropdown.getValue();
         String filterBy = filterByDropdown.getValue();
@@ -237,8 +246,9 @@ public class PostListView {
         	viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid number format in the 'Enter N' field!");
         }
     }
-
-    private void handleExportPost(Post post) {
+    
+    @Override
+    public void handleExportPost(Post post) {
     	
         // Show save file dialog
         File file = viewFacade.handleExportPost();
