@@ -6,16 +6,17 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.scene.control.Hyperlink;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.SignupViewInterface;
 
 public class SignupView extends BaseView implements SignupViewInterface {
@@ -27,7 +28,7 @@ public class SignupView extends BaseView implements SignupViewInterface {
     private Hyperlink backButton;
     private VBox layout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public SignupView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;

@@ -10,17 +10,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.PostFormViewInterface;
 
 public class PostFormView extends BaseView implements PostFormViewInterface {
@@ -33,7 +34,7 @@ public class PostFormView extends BaseView implements PostFormViewInterface {
     private Button saveButton, cancelButton;
     private VBox mainLayout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
     
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy HH:mm");
 

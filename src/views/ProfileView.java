@@ -16,6 +16,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.ProfileViewInterface;
 
 public class ProfileView extends BaseView implements ProfileViewInterface {
@@ -27,7 +28,7 @@ public class ProfileView extends BaseView implements ProfileViewInterface {
     private Button saveButton, backButton;
     private VBox mainLayout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public ProfileView(Stage stage, User user, UserController userController, PostController postController) {
         this.user = user;

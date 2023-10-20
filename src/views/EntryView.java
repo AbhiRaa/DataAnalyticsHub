@@ -15,6 +15,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.EntryViewInterface;
 
 public class EntryView extends BaseView implements EntryViewInterface {
@@ -22,7 +23,7 @@ public class EntryView extends BaseView implements EntryViewInterface {
 	private Stage stage;
 	private BorderPane root;
 	
-	private GUIViewFacade viewFacade;
+	private GUIViewFacadeInterface viewFacade;
 
     public EntryView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;

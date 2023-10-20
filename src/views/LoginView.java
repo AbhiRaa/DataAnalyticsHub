@@ -19,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.LoginViewInterface;
 
 public class LoginView extends BaseView implements LoginViewInterface {
@@ -32,7 +33,7 @@ public class LoginView extends BaseView implements LoginViewInterface {
     private ImageView togglePasswordVisibility;
     private GridPane gridPane;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public LoginView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;

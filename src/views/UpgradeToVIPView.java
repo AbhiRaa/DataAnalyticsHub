@@ -16,6 +16,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.UpgradeToVIPViewInterface;
 
 public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterface {
@@ -25,7 +26,7 @@ public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterf
     private Button upgradeButton, backButton;
     private VBox layout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public UpgradeToVIPView(Stage stage, User user, UserController userController, PostController postController) {
         this.user = user;

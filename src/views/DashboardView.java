@@ -20,6 +20,7 @@ import javafx.scene.text.FontPosture;
 import javafx.stage.Stage;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.DashboardViewInterface;
 
 public class DashboardView extends BaseView implements DashboardViewInterface {
@@ -32,7 +33,7 @@ public class DashboardView extends BaseView implements DashboardViewInterface {
     private Hyperlink cancelVIPSubscriptionLink = null;
     private BorderPane mainLayout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
     
     public DashboardView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;

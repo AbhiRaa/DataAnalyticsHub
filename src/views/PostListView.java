@@ -24,6 +24,7 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.PostListViewInterface;
 
 public class PostListView extends BaseView implements PostListViewInterface {
@@ -37,7 +38,7 @@ public class PostListView extends BaseView implements PostListViewInterface {
     private ComboBox<String> sortByDropdown, filterByDropdown;
     private VBox layout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public PostListView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;

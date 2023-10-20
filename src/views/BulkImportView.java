@@ -19,6 +19,7 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.BulkImportViewInterface;
 
 public class BulkImportView extends BaseView implements BulkImportViewInterface {
@@ -30,7 +31,7 @@ public class BulkImportView extends BaseView implements BulkImportViewInterface 
     private List<Post> validPosts;
     private VBox mainLayout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public BulkImportView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;

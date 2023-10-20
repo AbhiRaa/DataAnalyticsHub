@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import models.Post;
 import models.User;
 import views.facade.GUIViewFacade;
+import views.facade.GUIViewFacadeInterface;
 import views.interfaces.PieChartViewInterface;
 
 public class PieChartView extends BaseView implements PieChartViewInterface {
@@ -30,7 +31,7 @@ public class PieChartView extends BaseView implements PieChartViewInterface {
     private Button backButton, myPostsButton, allPostsButton;
     private VBox layout;
     
-    private GUIViewFacade viewFacade;
+    private GUIViewFacadeInterface viewFacade;
 
     public PieChartView(Stage stage, User user, UserController userController, PostController postController) {
         this.user = user;
