@@ -19,6 +19,10 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.SignupViewInterface;
 
+/**
+ * The SignupView class provides a graphical interface for users to register for a new account.
+ * It presents fields for the username, first name, last name, password, and password confirmation.
+ */
 public class SignupView extends BaseView implements SignupViewInterface {
 
     private Stage stage;
@@ -29,13 +33,21 @@ public class SignupView extends BaseView implements SignupViewInterface {
     private VBox layout;
     
     private GUIViewFacadeInterface viewFacade;
-
+    
+    /**
+     * Constructs the SignupView.
+     * 
+     * @param stage The primary stage for this view.
+     * @param userController The controller for user-related operations.
+     * @param postController The controller for post-related operations.
+     */
     public SignupView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
 
         initializeComponents();
         show();
+        System.out.println("SignupView initialized.");
     }
     
     @Override
@@ -73,6 +85,7 @@ public class SignupView extends BaseView implements SignupViewInterface {
     	stage.setScene(new Scene(layout, 350, 400));
         stage.setTitle("Signup");
         stage.show();
+        System.out.println("SignupView displayed.");
     }
     
     @Override
@@ -121,7 +134,10 @@ public class SignupView extends BaseView implements SignupViewInterface {
             } else {
                 viewFacade.showAlert(AlertType.ERROR, "Error", "Username already exists!");
             }
+    		System.out.println("User tried to sign up with username: " + username);
+
         } catch (Exception e) {
+        	System.err.println("Error during signup: " + e.getMessage());
             viewFacade.showAlert(AlertType.ERROR, "Error", "All fields are required!");
         }
     }
@@ -130,5 +146,6 @@ public class SignupView extends BaseView implements SignupViewInterface {
     public void handleBack() {
         // Switch back to LoginView
         viewFacade.navigateToLogin();
+    	System.out.println("Navigating back to login view.");
     }
 }

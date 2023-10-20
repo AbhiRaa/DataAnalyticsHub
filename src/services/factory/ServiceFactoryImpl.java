@@ -6,22 +6,42 @@ import services.PostServiceImpl;
 import services.UserService;
 import services.UserServiceImpl;
 
-// A concrete implementation of the ServiceFactory interface that contains the logic to decide which service instance to create.
+/**
+ * A concrete implementation of the ServiceFactory interface.
+ * This class contains the logic to instantiate specific service objects.
+ */
 public class ServiceFactoryImpl implements ServiceFactory {
-	
-	 private final DBManager dbManager;
+    
+    private final DBManager dbManager;
 
-	    public ServiceFactoryImpl(DBManager dbManager) {
-	        this.dbManager = dbManager;
-	    }
+    /**
+     * Constructor for ServiceFactoryImpl.
+     *
+     * @param dbManager The database manager to be passed to services.
+     */
+    public ServiceFactoryImpl(DBManager dbManager) {
+        this.dbManager = dbManager;
+    }
 
-	    @Override
-	    public UserService createUserService() {
-	        return new UserServiceImpl(dbManager);
-	    }
+    /**
+     * Creates an instance of UserServiceImpl.
+     * 
+     * @return UserService instance.
+     */
+    @Override
+    public UserService createUserService() {
+        System.out.println("Creating UserService instance.");
+        return new UserServiceImpl(dbManager);
+    }
 
-	    @Override
-	    public PostService createPostService() {
-	        return new PostServiceImpl(dbManager);
-	    }
+    /**
+     * Creates an instance of PostServiceImpl.
+     * 
+     * @return PostService instance.
+     */
+    @Override
+    public PostService createPostService() {
+        System.out.println("Creating PostService instance.");
+        return new PostServiceImpl(dbManager);
+    }
 }

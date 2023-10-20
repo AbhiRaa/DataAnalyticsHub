@@ -1,5 +1,6 @@
 package enums;
 
+// Filter feature for posts
 public enum FilterBy {
 	My_posts("My Posts"),
 	All_posts("All Posts");

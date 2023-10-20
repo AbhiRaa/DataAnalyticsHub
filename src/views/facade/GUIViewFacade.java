@@ -6,6 +6,8 @@ import java.util.List;
 import controllers.PostController;
 import controllers.UserController;
 import exceptions.CsvLoadingException;
+import exceptions.PostException;
+import exceptions.UserException;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.stage.Stage;
@@ -101,44 +103,44 @@ public class GUIViewFacade implements GUIViewFacadeInterface {
     
     // Post-related methods
     @Override
-    public void addPost(String content, String author, int likes, int shares, String DateTime, User user) {
+    public void addPost(String content, String author, int likes, int shares, String DateTime, User user) throws PostException {
     	Post post = new Post(content, author, likes, shares, DateTime, user.getUserId());
         postController.addPost(post);
     }
     
     @Override
-    public void editPost(int postId, String content, String author, int likes, int shares, String DateTime, User user) {
+    public void editPost(int postId, String content, String author, int likes, int shares, String DateTime, User user) throws PostException {
         Post post = new Post(postId, content, author, likes, shares, DateTime, user.getUserId());
         postController.updatePost(post);
     }
     
     @Override
-    public void deletePost(Post post) {
+    public void deletePost(Post post) throws PostException {
         postController.deletePost(post);
     }
     
     @Override
-    public List<Post> getPostsByUser(User user){
+    public List<Post> getPostsByUser(User user) throws PostException{
     	return postController.getPostsByUser(user);
     }
     
     @Override
-    public List<Post> getAllPosts(){
+    public List<Post> getAllPosts() throws PostException{
     	return postController.getAllPosts();
     }
     
     @Override
-    public Post getPostByID(int postId) { 
+    public Post getPostByID(int postId) throws PostException { 
     	return postController.getPostByID(postId);
     }
     
     @Override
-    public List<Post> getTopNPostsByLikes(int n, User user) {
+    public List<Post> getTopNPostsByLikes(int n, User user) throws PostException {
     	return postController.getTopNPostsByLikes(n, user);
     }
     
     @Override
-    public List<Post> getTopNPostsByShares(int n, User user) {
+    public List<Post> getTopNPostsByShares(int n, User user) throws PostException {
     	return postController.getTopNPostsByShares(n, user);
     }
     
@@ -163,50 +165,50 @@ public class GUIViewFacade implements GUIViewFacadeInterface {
     }
     
     @Override
-    public boolean addBulkPosts(List<Post> posts) {
+    public boolean addBulkPosts(List<Post> posts) throws PostException {
     	return postController.addBulkPosts(posts);
     }
 
     
     // User-related methods
     @Override
-    public User loginUser(String username, String password) {
+    public User loginUser(String username, String password) throws UserException {
         return userController.loginUser(username, password);
     }
 
     @Override
-    public boolean signupUser(String username, String password, String firstName, String lastName) {
+    public boolean signupUser(String username, String password, String firstName, String lastName) throws UserException {
         return userController.registerUser(username, password, firstName, lastName);
     }
     
     @Override
-    public boolean degradeToStandard(User user) {
+    public boolean degradeToStandard(User user) throws UserException {
     	return userController.degradeToStandard(user);
     }
     
     @Override
-    public boolean upgradeToVIP(User user) {
+    public boolean upgradeToVIP(User user) throws UserException {
     	return userController.upgradeToVIP(user);
     }
     
     @Override
-    public boolean checkUsernameExist(String username) {
+    public boolean checkUsernameExist(String username) throws UserException {
     	return userController.usernameExists(username);
     }
     
     @Override
-    public boolean isPasswordSameAsOld(int userId, String password, String salt) {
+    public boolean isPasswordSameAsOld(int userId, String password, String salt) throws UserException {
         String hashedOldPassword = userController.getHashedPassword(userId);
         return hashedOldPassword.equals(PasswordUtils.hashPassword(password, salt));
     }
 
     @Override
-    public boolean updateUserPassword(User user, String password) {
+    public boolean updateUserPassword(User user, String password) throws UserException {
         return userController.updateUserPassword(user, password);
     }
     
     @Override
-    public boolean updateUserProfile(User user) { 
+    public boolean updateUserProfile(User user) throws UserException { 
     	return userController.updateUserProfile(user);
     }
 }

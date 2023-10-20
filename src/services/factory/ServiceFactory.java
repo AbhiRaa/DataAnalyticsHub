@@ -3,10 +3,23 @@ package services.factory;
 import services.PostService;
 import services.UserService;
 
-// An interface that outlines the methods for creating service instances.
+/**
+ * This interface defines methods for creating service instances.
+ * The factory pattern abstracts the instantiation of service objects.
+ */
 public interface ServiceFactory {
-	
-	UserService createUserService();
-	
+    
+    /**
+     * Creates an instance of UserService.
+     * 
+     * @return UserService instance.
+     */
+    UserService createUserService();
+    
+    /**
+     * Creates an instance of PostService.
+     * 
+     * @return PostService instance.
+     */
     PostService createPostService();
 }

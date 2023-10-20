@@ -2,6 +2,7 @@ package views;
 
 import controllers.PostController;
 import controllers.UserController;
+import exceptions.UserException;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -19,6 +20,11 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.UpgradeToVIPViewInterface;
 
+/**
+ * The UpgradeToVIPView class provides a graphical interface for users to upgrade their account status to VIP.
+ * It displays a promotional label about the VIP subscription, an upgrade button to handle the upgrade, 
+ * and a back button to navigate back to the dashboard.
+ */
 public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterface {
 
     private Stage stage;
@@ -27,7 +33,15 @@ public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterf
     private VBox layout;
     
     private GUIViewFacadeInterface viewFacade;
-
+    
+    /**
+     * Constructs the UpgradeToVIPView.
+     * 
+     * @param stage The primary stage for this view.
+     * @param user The current logged in user.
+     * @param userController The controller for user-related operations.
+     * @param postController The controller for post-related operations.
+     */
     public UpgradeToVIPView(Stage stage, User user, UserController userController, PostController postController) {
         this.user = user;
         this.stage = stage;
@@ -35,6 +49,7 @@ public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterf
         
         initializeComponents();
         show();
+        System.out.println("UpgradeToVIPView initialized.");
     }
     
     @Override
@@ -49,7 +64,13 @@ public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterf
         vipLabel.setFont(Font.font("Arial", 15));
         
         upgradeButton = new Button("Upgrade to VIP");
-        upgradeButton.setOnAction(e -> handleUpgrade());
+        upgradeButton.setOnAction(e -> {
+			try {
+				handleUpgrade();
+			} catch (UserException e1) {
+				e1.printStackTrace();
+			}
+		});
 
         backButton = new Button("Back");
         backButton.setOnAction(e -> handleBack());
@@ -66,20 +87,32 @@ public class UpgradeToVIPView extends BaseView implements UpgradeToVIPViewInterf
     	stage.setScene(new Scene(layout, 600, 300));
         stage.setTitle("Upgrade to VIP");
         stage.show();
+        System.out.println("UpgradeToVIPView displayed.");
     }
     
     @Override
     public void handleBack() {
     	viewFacade.navigateToDashboard(user);
+    	System.out.println("Navigating back to dashboard.");
 	}
     
     @Override
-	public void handleUpgrade() {
+	public void handleUpgrade() throws UserException {
+    	System.out.println("Upgrade process started for user: " + user.getUsername());
+        upgradeButton.setDisable(true); // Disable the button to prevent multiple clicks
+        upgradeButton.setText("Upgrading...");
+        
         if (viewFacade.upgradeToVIP(user)) {
+        	System.out.println("Successfully upgraded user: " + user.getUsername());
         	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Successfully upgraded to VIP. Please log out and log in again to access VIP functionalities.");
         	viewFacade.navigateToDashboard(user);
         } else {
+        	System.err.println("Error during the upgrade for user: " + user.getUsername());
         	viewFacade.showAlert(AlertType.ERROR, "Error", "An error occurred during the upgrade. Please try again.");
         }
+        
+        // Resetting the button state
+        upgradeButton.setDisable(false);
+        upgradeButton.setText("Upgrade to VIP");
     }
 }

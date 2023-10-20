@@ -19,6 +19,10 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.ProfileViewInterface;
 
+/**
+ * The ProfileView class provides a graphical interface for users to view and edit
+ * their profiles. It allows for changing the username, first name, last name, and password.
+ */
 public class ProfileView extends BaseView implements ProfileViewInterface {
 
     private Stage stage;
@@ -29,7 +33,15 @@ public class ProfileView extends BaseView implements ProfileViewInterface {
     private VBox mainLayout;
     
     private GUIViewFacadeInterface viewFacade;
-
+    
+    /**
+     * Constructs the ProfileView.
+     * 
+     * @param stage The primary stage for this view.
+     * @param user The current logged-in user.
+     * @param userController The controller for user-related operations.
+     * @param postController The controller for post-related operations.
+     */
     public ProfileView(Stage stage, User user, UserController userController, PostController postController) {
         this.user = user;
         this.stage = stage;
@@ -37,6 +49,7 @@ public class ProfileView extends BaseView implements ProfileViewInterface {
         
         initializeComponents();
         show();
+        System.out.println("ProfileView initialized.");
     }
     
     @Override
@@ -88,6 +101,7 @@ public class ProfileView extends BaseView implements ProfileViewInterface {
     	stage.setScene(new Scene(mainLayout, 400, 600));
         stage.setTitle("Edit Profile");
         stage.show();
+        System.out.println("ProfileView displayed.");
     }
     
     @Override
@@ -143,9 +157,10 @@ public class ProfileView extends BaseView implements ProfileViewInterface {
             } else {
                 viewFacade.showAlert(AlertType.ERROR, "Error", "Error updating profile. Please try again.");
             }
-            
+    		System.out.println("Profile saved.");
+
     	} catch (Exception e) {
-    		 e.printStackTrace();
+    		System.err.println("Error saving profile: " + e.getMessage());
             viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
     	}
     }
@@ -153,5 +168,6 @@ public class ProfileView extends BaseView implements ProfileViewInterface {
     @Override
     public void handleBack() {
     	viewFacade.navigateToDashboard(user);
+    	System.out.println("Navigating back to dashboard.");
     }
 }

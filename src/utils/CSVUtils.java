@@ -12,12 +12,20 @@ import exceptions.CsvLoadingException;
 import models.Post;
 import models.User;
 
+/**
+ * Utility class for handling CSV operations, specifically for reading and writing Post data.
+ * <p>
+ * This class provides static methods to read posts from a CSV file and to save posts 
+ * to a file. It includes validation and error handling for CSV data.
+ * </p>
+ */
 public class CSVUtils {
 	
 	/**
 	    * Reads posts from a given CSV file and returns a list of Post objects.
 	    *
 	    * @param csvFile The path to the CSV file containing posts.
+	    * @param user
 	    * @return A list of Post objects extracted from the CSV file.
 	    * @throws CsvLoadingException if there's an issue with the CSV file format or content.
 	    */
@@ -37,6 +45,10 @@ public class CSVUtils {
 	                // Verify if the CSV row has the expected number of columns
 	                if (data.length < 6) {
 	                    throw new CsvLoadingException("Missing data in CSV file" + line, null);
+	                }
+	                
+	                if (data.length > 6) {
+	                    throw new CsvLoadingException("Too many columns in CSV data.", null);
 	                }
 	                
 	                // Extract and validate data from the CSV row
@@ -74,7 +86,11 @@ public class CSVUtils {
 	        if (value.trim().isEmpty()) {
 	            throw new CsvLoadingException("Missing integer value for field: " + fieldName, null);
 	        }
-	        return Integer.parseInt(value);
+	        try {
+	            return Integer.parseInt(value);
+	        } catch (NumberFormatException e) {
+	            throw new CsvLoadingException("Invalid integer value for field: " + fieldName, e);
+	        }
 	    }
 	    
 	    /**
@@ -92,6 +108,13 @@ public class CSVUtils {
 	        return value;
 	    }
 	    
+	    /**
+	     * Saves the given post data to a specified file.
+	     *
+	     * @param post The post data to be saved.
+	     * @param file The file where the post data will be saved.
+	     * @return true if the data was successfully saved, false otherwise.
+	     */
 	    public static boolean savePostToFile(Post post, File file) {
 	        try (FileWriter fileWriter = new FileWriter(file)) {
 	            fileWriter.append("ID,Content,Author,Likes,Shares,DateTime\n");

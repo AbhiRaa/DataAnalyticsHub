@@ -49,9 +49,7 @@ public class Post extends Auditable {
         this.likes = likes;
         this.shares = shares;
         this.userId = userId;
-        // Convert the provided date-time string to a LocalDateTime object using the formatter
-      // this.dateTime = LocalDateTime.parse(dateTimeStr, formatter);
-     // Check if the string is in ISO format
+        // Check if the string is in ISO format
         if (dateTimeStr.contains("T")) {
             this.dateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         } else {
@@ -65,9 +63,8 @@ public class Post extends Auditable {
         this.author = author;
         this.likes = likes;
         this.shares = shares;
-        //this.dateTime = LocalDateTime.parse(dateTime, formatter);
         this.userId = userId;
-     // Check if the string is in ISO format
+        // Check if the string is in ISO format
         if (dateTimeStr.contains("T")) {
             this.dateTime = LocalDateTime.parse(dateTimeStr, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
         } else {
@@ -101,7 +98,7 @@ public class Post extends Auditable {
      */
     @Override
     public String toString() {
-        return String.format("%d | %s | %d | %d | %s", postId, content, likes, shares, dateTime.format(formatter));
+        return String.format("%d | %s | %s | %d | %d | %s", postId, content, author, likes, shares, dateTime.format(formatter));
     }
 }
 

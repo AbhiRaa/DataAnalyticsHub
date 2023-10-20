@@ -18,13 +18,24 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.EntryViewInterface;
 
+/**
+ * The EntryView class provides the initial view when the application starts.
+ * It displays a welcome message along with a loading bar animation before navigating to the login page.
+ */
 public class EntryView extends BaseView implements EntryViewInterface {
 
 	private Stage stage;
 	private BorderPane root;
 	
 	private GUIViewFacadeInterface viewFacade;
-
+	
+	/**
+     * Constructs the EntryView.
+     * 
+     * @param stage The primary stage for this view.
+     * @param userController The controller for user-related operations.
+     * @param postController The controller for post-related operations.
+     */
     public EntryView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
@@ -58,6 +69,9 @@ public class EntryView extends BaseView implements EntryViewInterface {
         timeline.setOnFinished(e -> handleCompletion());
 
         timeline.play();
+        
+        // Logging the initialization completion
+        System.out.println("EntryView components initialized.");
     }
     
     @Override
@@ -66,10 +80,17 @@ public class EntryView extends BaseView implements EntryViewInterface {
         stage.setScene(scene);
         stage.setTitle("Welcome");
         stage.show();
+        // Logging the view display
+        System.out.println("EntryView displayed to the user.");
     }
     
     @Override
     public void handleCompletion() {
-    	viewFacade.navigateToLogin();
+    	try {
+            viewFacade.navigateToLogin();
+            System.out.println("Navigation to Login initiated.");
+        } catch (Exception e) {
+            System.out.println("Error navigating to Login: " + e.getMessage());
+        }
     }
 }

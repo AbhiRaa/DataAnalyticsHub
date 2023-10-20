@@ -2,6 +2,7 @@ package views;
 
 import controllers.PostController;
 import controllers.UserController;
+import exceptions.UserException;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -22,6 +23,12 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.LoginViewInterface;
 
+/**
+ * The LoginView class provides a graphical interface for the login screen.
+ * Users can enter their username and password to log into the application.
+ * The view also provides a toggle feature to view/hide the password.
+ * Additionally, it provides a link for new users to navigate to the signup screen.
+ */
 public class LoginView extends BaseView implements LoginViewInterface {
 
     private Stage stage;
@@ -34,13 +41,21 @@ public class LoginView extends BaseView implements LoginViewInterface {
     private GridPane gridPane;
     
     private GUIViewFacadeInterface viewFacade;
-
+    
+    /**
+     * Constructs the LoginView.
+     * 
+     * @param stage The primary stage for this view.
+     * @param userController The controller for user-related operations.
+     * @param postController The controller for post-related operations.
+     */
     public LoginView(Stage stage, UserController userController, PostController postController) {
         this.stage = stage;
         this.viewFacade = new GUIViewFacade(stage, userController, postController);
         
         initializeComponents();
         show();
+        System.out.println("LoginView initialized.");
     }
     
     @Override
@@ -81,7 +96,13 @@ public class LoginView extends BaseView implements LoginViewInterface {
         GridPane.setMargin(togglePasswordVisibility, new Insets(0, 10, 0, -25));  // adjust as needed
 
         loginButton = new Button("Login");
-        loginButton.setOnAction(e -> handleLogin());
+        loginButton.setOnAction(e -> {
+			try {
+				handleLogin();
+			} catch (UserException e1) {
+				e1.printStackTrace();
+			}
+		});
         
         signupHyperlink = new Hyperlink("New User? Signup here.");
         signupHyperlink.setOnAction(e -> handleSignup());
@@ -121,7 +142,7 @@ public class LoginView extends BaseView implements LoginViewInterface {
         bottomLayout.getChildren().addAll(exit, signupHyperlink);
 
         gridPane.add(bottomLayout, 0, 5, 2, 1); // Spanning over two columns
-
+        System.out.println("LoginView components initialized.");
     }
     
     @Override
@@ -135,21 +156,28 @@ public class LoginView extends BaseView implements LoginViewInterface {
     public void handleExit() {
 		viewFacade.showAlert(AlertType.INFORMATION, "Message", "See you soon!");
 		stage.close();
+        System.out.println("User chose to exit the application.");
 	}
     
     @Override
-	public void handleLogin() {
-        // Get username and password from fields
-        String username = usernameField.getText();
-        String password = passwordField.getText();
+	public void handleLogin() throws UserException {
+    	try {
+    		// Get username and password from fields
+            String username = usernameField.getText();
+            String password = passwordField.getText();
 
-        User user = viewFacade.loginUser(username, password);
-        if (user != null) {
-            // Successful login, switch to DashboardView
-            viewFacade.navigateToDashboard(user);
-        } else {
-            // Show error message
-            viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid username or password");
+            User user = viewFacade.loginUser(username, password);
+            if (user != null) {
+                // Successful login, switch to DashboardView
+                viewFacade.navigateToDashboard(user);
+            } else {
+                // Show error message
+                viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid username or password");
+            }
+            System.out.println("Attempt to log in with username: " + username);
+        } catch (Exception e) {
+            System.err.println("Error during login: " + e.getMessage());
+            viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred during login: " + e.getMessage());
         }
     }
     
@@ -157,6 +185,7 @@ public class LoginView extends BaseView implements LoginViewInterface {
     public void handleSignup() {
         // Switch to SignupView
         viewFacade.navigateToSignup();
+        System.out.println("Navigating to Signup view.");
     }
     
     @Override
@@ -167,11 +196,14 @@ public class LoginView extends BaseView implements LoginViewInterface {
             visiblePasswordField.setText(passwordField.getText());
             passwordField.setVisible(false);
             visiblePasswordField.setVisible(true);
+            System.out.println("Password visibility toggled: Hidden");
+
         } else {
             // copy the password from the plain text field to the password field
             passwordField.setText(visiblePasswordField.getText());
             passwordField.setVisible(true);
             visiblePasswordField.setVisible(false);
+            System.out.println("Password visibility toggled: Visible");
         }
     }
 }

@@ -1,5 +1,6 @@
 package enums;
 
+// Sort by criteria
 public enum SortBy {
 	By_Likes("By Likes"),
 	By_Shares("By Shares");

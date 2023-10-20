@@ -1,15 +1,23 @@
 package models;
 
+/**
+ * User represents a user entity in the system. It captures details about the user such as
+ * username, password (hashed), first name, last name, and VIP status.
+ * The User class extends the Auditable class, inheriting its auditing fields.
+ */
 public class User extends Auditable {
 
 	private int userId;
 	private String username;
-    private String hashedPassword;  // We store the hashed password, not the original.
+    private String hashedPassword;  // Store the hashed password, not the original.
     private String salt;  // Salt for the password hashing.
     private String firstName;
     private String lastName;
     private boolean isVIP;
-
+    
+    /**
+     * Constructs a User object with all attributes.
+     */
     public User(int userId, String username, String hashedPassword, String salt, String firstName, String lastName, boolean isVIP) {
         this.userId = userId;
     	this.username = username;
@@ -20,6 +28,9 @@ public class User extends Auditable {
         this.isVIP = isVIP;
     }
     
+    /**
+     * Constructs a User object without an userId. Useful for creating new users where the ID is auto-generated.
+     */
     public User(String username, String hashedPassword, String salt, String firstName, String lastName, boolean isVIP) {
     	this.username = username;
         this.salt = salt;
@@ -29,6 +40,7 @@ public class User extends Auditable {
         this.isVIP = isVIP;
     }
     
+    // Standard getters and setters
     /**
 	 * @return the userId
 	 */

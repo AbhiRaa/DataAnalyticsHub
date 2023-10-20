@@ -24,6 +24,10 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.PostFormViewInterface;
 
+/**
+ * The PostFormView class provides a graphical interface for creating a new post or editing an existing one.
+ * It captures details like the content, likes, shares, and date of the post.
+ */
 public class PostFormView extends BaseView implements PostFormViewInterface {
 
     private Stage stage;
@@ -37,7 +41,16 @@ public class PostFormView extends BaseView implements PostFormViewInterface {
     private GUIViewFacadeInterface viewFacade;
     
     private static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy HH:mm");
-
+    
+    /**
+     * Constructor for editing an existing post.
+     * 
+     * @param stage The primary stage for this view.
+     * @param user The current logged in user.
+     * @param postController The controller for post-related operations.
+     * @param userController The controller for user-related operations.
+     * @param existingPost The post to be edited.
+     */
     public PostFormView(Stage stage, User user, PostController postController, UserController userController, Post existingPost) {
         this.user = user;
         this.stage = stage;
@@ -46,6 +59,7 @@ public class PostFormView extends BaseView implements PostFormViewInterface {
         
         initializeComponents();
         show();
+        System.out.println("PostFormView initialized for editing post with ID: " + (existingPost != null ? existingPost.getPostId() : "New post"));
     }
     
     public PostFormView(Stage stage, User user, PostController postController, UserController userController) {
@@ -107,12 +121,17 @@ public class PostFormView extends BaseView implements PostFormViewInterface {
     	stage.setScene(new Scene(mainLayout, 400, 550));
         stage.setTitle(existingPost == null ? "Add Post" : "Edit Post");
         stage.show();
+        System.out.println("PostFormView displayed.");
     }
     
     @Override
     public void handleSave(Post existingPost) {
         try {
-
+            System.out.println("Save process started for post with ID: " + (existingPost != null ? existingPost.getPostId() : "New post"));
+            
+            saveButton.setDisable(true); // Disable the button to prevent multiple clicks
+            saveButton.setText("Saving...");
+            
             String content = contentField.getText();
             
             if (content == null || content.trim().isEmpty()) {
@@ -128,6 +147,13 @@ public class PostFormView extends BaseView implements PostFormViewInterface {
             try {
                 likes = Integer.parseInt(likesField.getText());
                 shares = Integer.parseInt(sharesField.getText());
+                
+                // Check for negative values
+                if (likes < 0 || shares < 0) {
+                    viewFacade.showAlert(AlertType.ERROR, "Error", "Likes and Shares cannot have negative values!");
+                    return;
+                }
+                
             } catch (NumberFormatException nfe) {
             	viewFacade.showAlert(AlertType.ERROR, "Error", "Please enter valid numbers for Likes and Shares!");
                 return;
@@ -160,6 +186,10 @@ public class PostFormView extends BaseView implements PostFormViewInterface {
             
         } catch (Exception e) {
             viewFacade.showAlert(AlertType.ERROR, "Error", "Error saving the post. Please ensure all fields are correctly filled.");
+        } finally {
+            // Resetting the button state after save
+            saveButton.setDisable(false);
+            saveButton.setText("Save");
         }
     }
 }

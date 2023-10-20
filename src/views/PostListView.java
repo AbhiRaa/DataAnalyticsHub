@@ -7,6 +7,7 @@ import controllers.PostController;
 import controllers.UserController;
 import enums.FilterBy;
 import enums.SortBy;
+import exceptions.PostException;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
@@ -27,6 +28,10 @@ import views.facade.GUIViewFacade;
 import views.facade.GUIViewFacadeInterface;
 import views.interfaces.PostListViewInterface;
 
+/**
+ * The PostListView class provides a graphical interface for users to manage and interact
+ * with their posts. It allows for viewing, editing, deleting, retrieving, and exporting posts.
+ */
 public class PostListView extends BaseView implements PostListViewInterface {
 
     private Stage stage;
@@ -39,7 +44,15 @@ public class PostListView extends BaseView implements PostListViewInterface {
     private VBox layout;
     
     private GUIViewFacadeInterface viewFacade;
-
+    
+    /**
+     * Constructs the PostListView.
+     * 
+     * @param stage The primary stage for this view.
+     * @param user The logged-in user.
+     * @param postController The controller for post-related operations.
+     * @param userController The controller for user-related operations.
+     */
     public PostListView(Stage stage, User user, PostController postController, UserController userController) {
         this.user = user;
         this.stage = stage;
@@ -47,12 +60,17 @@ public class PostListView extends BaseView implements PostListViewInterface {
         
         initializeComponents();
         show();
+        System.out.println("PostListView initialized.");
     }
 
     @SuppressWarnings("unchecked")
     @Override
 	protected void initializeComponents() {
-    	postsData = FXCollections.observableArrayList(viewFacade.getPostsByUser(user));
+    	try {
+			postsData = FXCollections.observableArrayList(viewFacade.getPostsByUser(user));
+		} catch (PostException e) {
+			e.printStackTrace();
+		}
 		 
 		postsTable = new TableView<>();
 		postsTable.setItems(postsData);
@@ -112,7 +130,11 @@ public class PostListView extends BaseView implements PostListViewInterface {
 		deleteButton.setOnAction(e -> {
 		    Post selectedPost = postsTable.getSelectionModel().getSelectedItem();
 		    if (selectedPost != null) {
-		        handleDeletePost(selectedPost);
+		        try {
+					handleDeletePost(selectedPost);
+				} catch (PostException e1) {
+					e1.printStackTrace();
+				}
 		    }
 		});
 		
@@ -124,7 +146,13 @@ public class PostListView extends BaseView implements PostListViewInterface {
 		postIdInput.setPromptText("Enter Post ID");
 		
 		retrieveButton = new Button("Retrieve Post by ID");
-		retrieveButton.setOnAction(e -> handleRetrievePostById());
+		retrieveButton.setOnAction(e -> {
+			try {
+				handleRetrievePostById();
+			} catch (PostException e1) {
+				e1.printStackTrace();
+			}
+		});
 		
 		clearTableButton = new Button("Clear List");
 		clearTableButton.setOnAction(e -> postsTable.getItems().clear());
@@ -141,7 +169,13 @@ public class PostListView extends BaseView implements PostListViewInterface {
         filterByDropdown.setValue("My Posts"); // Default value
 
         topPostsButton = new Button("Top Posts");
-        topPostsButton.setOnAction(e -> handleTopPosts());
+        topPostsButton.setOnAction(e -> {
+			try {
+				handleTopPosts();
+			} catch (PostException e1) {
+				e1.printStackTrace();
+			}
+		});
 		
 		exportButton = new Button("Export Selected Post");
 		exportButton.setDisable(true);
@@ -175,15 +209,17 @@ public class PostListView extends BaseView implements PostListViewInterface {
     	stage.setScene(new Scene(layout, 800, 600));
 		stage.setTitle("My Posts");
 		stage.show();
+        System.out.println("PostListView initialized.");
     }
     
     @Override
     public void handleBack() {
         viewFacade.navigateToDashboard(user);
+        System.out.println("Navigating back to dashboard.");
     }
     
     @Override
-    public void handleRetrievePostById() {
+    public void handleRetrievePostById() throws PostException {
     	try {
             Post post = viewFacade.getPostByID(Integer.parseInt(postIdInput.getText()));
             if (post != null) {
@@ -193,6 +229,8 @@ public class PostListView extends BaseView implements PostListViewInterface {
                 // Show an error message to the user indicating the post was not found or not authored by the user.
             	viewFacade.showAlert(AlertType.ERROR, "Error", "Post not found!");
             }
+            System.out.println("Retrieved post by ID.");
+
         } catch (NumberFormatException e) {
         	viewFacade.showAlert(AlertType.ERROR, "Error", "Invalid Post ID format!");
         }
@@ -201,17 +239,23 @@ public class PostListView extends BaseView implements PostListViewInterface {
     @Override
     public void handleEditPost(Post selectedPost) {
         viewFacade.navigateToEditPost(user, selectedPost);
+        System.out.println("Editing selected post.");
     }
     
     @Override
-    public void handleDeletePost(Post selectedPost) {
-    	viewFacade.deletePost(selectedPost);
-        postsData.remove(selectedPost);  // Refresh the table
-
+    public void handleDeletePost(Post selectedPost) throws PostException {
+    	try {
+    		viewFacade.deletePost(selectedPost);
+            postsData.remove(selectedPost);  // Refresh the table
+            System.out.println("Deleted selected post.");
+        } catch (Exception e) {
+            System.err.println("Error deleting post: " + e.getMessage());
+            viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred while deleting post: " + e.getMessage());
+        }
     }
     
     @Override
-    public void handleTopPosts() {
+    public void handleTopPosts() throws PostException {
         int n;
         String sortBy = sortByDropdown.getValue();
         String filterBy = filterByDropdown.getValue();
@@ -250,19 +294,24 @@ public class PostListView extends BaseView implements PostListViewInterface {
     
     @Override
     public void handleExportPost(Post post) {
-    	
-        // Show save file dialog
-        File file = viewFacade.handleExportPost();
+    	try {
+    		// Show save file dialog
+            File file = viewFacade.handleExportPost();
 
-        if (file != null) {
-            boolean isSaved = viewFacade.savePostToFile(post, file);
-            if (isSaved) 
-            	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Post exported successfully!");
-            else
-            	viewFacade.showAlert(AlertType.ERROR, "Error", "Error while exporting. Please try again!");
+            if (file != null) {
+                boolean isSaved = viewFacade.savePostToFile(post, file);
+                if (isSaved) 
+                	viewFacade.showAlert(AlertType.INFORMATION, "Success", "Post exported successfully!");
+                else
+                	viewFacade.showAlert(AlertType.ERROR, "Error", "Error while exporting. Please try again!");
 
-        } else { 
-        	viewFacade.showAlert(AlertType.ERROR, "Error", "Error occured!");
+            } else { 
+            	viewFacade.showAlert(AlertType.ERROR, "Error", "Error occured!");
+            }
+            System.out.println("Exported selected post.");
+        } catch (Exception e) {
+            System.err.println("Error exporting post: " + e.getMessage());
+            viewFacade.showAlert(AlertType.ERROR, "Error", "An unexpected error occurred while exporting post: " + e.getMessage());
         }
     }
 }

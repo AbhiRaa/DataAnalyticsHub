@@ -1,5 +1,8 @@
 package views.interfaces;
 
+import exceptions.UserException;
+
+//Interface for DashboardView
 public interface DashboardViewInterface {
 	
 	void handleAddPost();
@@ -12,7 +15,7 @@ public interface DashboardViewInterface {
 
     void handleUpgradeToVIP();
     
-    void handleDegrade();
+    void handleDegrade() throws UserException;
     
     void handleVisualization();
     

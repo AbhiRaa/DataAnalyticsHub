@@ -6,13 +6,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import exceptions.DatabaseException;
+
+/**
+ * DBManager is responsible for managing the database connection, 
+ * initializing the database tables if they don't exist, 
+ * and executing database queries and updates.
+ * It follows the Singleton pattern to ensure only one instance 
+ * exists throughout the application's lifetime.
+ */
 public class DBManager {
 	
     private static final String DB_URL = "jdbc:sqlite:/Users/abhinav/Development/advance_programming/Assignment2/src/database/DataAnalyticsHub.db";
     private Connection connection;
     private static DBManager instance;
     
-    // Constructor of the DBManager private, it means that no other class (including the Main class) can directly instantiate it using the new keyword.
+    // Private constructor ensures that no other class can directly instantiate it.
     private DBManager() {
         connect();
         initializeDB();
@@ -21,11 +30,18 @@ public class DBManager {
     /* 
      * Lazy Initialization with Check, the instance is created only when it's needed. If you never call getInstance(), the instance will never be created.
      * By checking if the connection is closed, it attempt to ensure that the DB connection is always fresh when accessed.
+     * Reference: https://www.digitalocean.com/community/tutorials/java-singleton-design-pattern-best-practices-examples
+     * 
+     * @return DBManager instance
+     * @throws SQLException if there's an error during database operation
      */
-    // Singleton pattern to manage the SQLite connection
-    public static DBManager getInstance() throws SQLException {
-        if (instance == null || instance.getConnection().isClosed()) {
-            instance = new DBManager();
+    public static DBManager getInstance() throws DatabaseException {
+    	try {
+            if (instance == null || instance.getConnection().isClosed()) {
+                instance = new DBManager();
+            }
+        } catch (SQLException e) {
+            throw new DatabaseException("Error while initializing DBManager.", e);
         }
         return instance;
     }
@@ -33,6 +49,8 @@ public class DBManager {
     /*
      * Resource Handling in Singleton, every time getConnection is called, it checks if the connection is active. If not, it re-establishes the connection. 
      * This ensures that a healthy connection is always returned.
+     * 
+     * @return active database connection
      */
     public Connection getConnection() {
     	try {
@@ -58,11 +76,11 @@ public class DBManager {
         }
     }
 
-    // Set up the database tables if they don't exist
+    // Initializes the database tables if they don't exist.
     private void initializeDB() {
         try {
             if (!tableExists("User")) {
-                // Users table creation
+                // User table creation
                 try (Statement stmt = connection.createStatement()) {
                     String createUsersTable = "CREATE TABLE User (" +
                                               "UserID INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT," +
@@ -82,7 +100,7 @@ public class DBManager {
             }
 
             if (!tableExists("Post")) {
-                // Posts table creation
+                // Post table creation
                 try (Statement stmt = connection.createStatement()) {
                     String createPostsTable = "CREATE TABLE Post (" +
                                               "PostID INTEGER UNIQUE PRIMARY KEY AUTOINCREMENT," +
@@ -103,12 +121,12 @@ public class DBManager {
             }
 
         } catch (SQLException e) {
-            System.err.println("Error during database initialization: " + e.getMessage());
+        	System.err.println("Error during database initialization: " + e.getMessage());
             e.printStackTrace();
-
         }
     }
     
+    // Checks if a table exists in the database.
     private boolean tableExists(String tableName) throws SQLException {
         try (ResultSet rs = connection.getMetaData().getTables(null, null, tableName, null)) {
             return rs.next();
@@ -116,15 +134,23 @@ public class DBManager {
     }
 
     // Execute a SELECT query and return the result set
-    public ResultSet executeQuery(String query) throws SQLException {
-        Statement stmt = connection.createStatement();
-        return stmt.executeQuery(query);
+    public ResultSet executeQuery(String query) throws DatabaseException {
+    	try {
+            Statement stmt = connection.createStatement();
+            return stmt.executeQuery(query);
+        } catch (SQLException e) {
+            throw new DatabaseException("Error executing query: " + query, e);
+        }
     }
 
     // Execute INSERT, UPDATE, or DELETE operations
-    public int executeUpdate(String query) throws SQLException {
-        Statement stmt = connection.createStatement();
-        return stmt.executeUpdate(query);
+    public int executeUpdate(String query) throws DatabaseException {
+    	try {
+            Statement stmt = connection.createStatement();
+            return stmt.executeUpdate(query);
+        } catch (SQLException e) {
+            throw new DatabaseException("Error executing update: " + query, e);
+        }
     }
 
     // Close the database connection
