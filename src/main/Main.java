@@ -13,8 +13,12 @@ public class Main extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-
-    	dbManager = new DBManager(); // instantiate it once
+    	
+    	/*
+    	 * The whole point of the Singleton pattern is to ensure that there's only one instance of the class throughout the application's lifetime
+    	 * and access this instance using the getInstance() method.
+    	 */
+    	dbManager = DBManager.getInstance();
     	UserController userController = new UserController(dbManager);
     	PostController postController = new PostController(dbManager);
          

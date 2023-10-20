@@ -7,15 +7,21 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DBManager {
+	
     private static final String DB_URL = "jdbc:sqlite:/Users/abhinav/Development/advance_programming/Assignment2/src/database/DataAnalyticsHub.db";
     private Connection connection;
     private static DBManager instance;
-
-    public DBManager() {
+    
+    // Constructor of the DBManager private, it means that no other class (including the Main class) can directly instantiate it using the new keyword.
+    private DBManager() {
         connect();
         initializeDB();
     }
     
+    /* 
+     * Lazy Initialization with Check, the instance is created only when it's needed. If you never call getInstance(), the instance will never be created.
+     * By checking if the connection is closed, it attempt to ensure that the DB connection is always fresh when accessed.
+     */
     // Singleton pattern to manage the SQLite connection
     public static DBManager getInstance() throws SQLException {
         if (instance == null || instance.getConnection().isClosed()) {
@@ -24,19 +30,19 @@ public class DBManager {
         return instance;
     }
     
-//    // Singleton pattern to manage the SQLite connection
-//    public static DBManager getInstance() throws SQLException {
-//        if (instance == null) {
-//            instance = new DBManager();
-//        } else if (instance.getConnection().isClosed()) {
-//            instance.close(); // Close the connection if it's not closed already
-//            instance = new DBManager(); // Then reinitialize
-//        }
-//        return instance;
-//    }
-
-
+    /*
+     * Resource Handling in Singleton, every time getConnection is called, it checks if the connection is active. If not, it re-establishes the connection. 
+     * This ensures that a healthy connection is always returned.
+     */
     public Connection getConnection() {
+    	try {
+            if (this.connection == null || this.connection.isClosed()) {
+                connect();  // Reconnect if the connection is null or closed
+            }
+        } catch (SQLException e) {
+            System.err.println("Error checking connection status: " + e.getMessage());
+            e.printStackTrace();
+        }
         return this.connection;
     }
 
